@@ -26,9 +26,7 @@ Write-Output "[*] Checking for :::Modifiable Service Binaries:::" | Out-File -Ap
 foreach ($dir in $directories) {
 	if (Test-Path $dir) {
 		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
-        Write-Output "[+] Scanning $dir ..."
-		# Get all .exe and .dll files
-		#$files = Get-ChildItem -Path $dir -Recurse -Include ("*.exe","*.dll") -File -ErrorAction SilentlyContinue
+        	Write-Output "[+] Scanning $dir ..."
 		# Get all .exe files
 		$files = Get-ChildItem -Path $dir -Recurse -Include "*.exe" -File -ErrorAction SilentlyContinue
 
@@ -36,26 +34,29 @@ foreach ($dir in $directories) {
 			$filePath = $file.FullName
 			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
 			
-			# Get the icacls output
+			# Get the icacls and sc output
 			$permissions = icacls $filePath
-			
+			$fileService = [System.IO.Path]::GetFileNameWithoutExtension($filePath)
+      			$permissions_service = sc.exe qc $fileService
+      
 			# Save all results
 			$permissions | Out-File -Append $outputFile
 			Write-Output "---------------------------------" | Out-File -Append $outputFile
 
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)") {
-                Write-Output "[*] :::Modifiable Service Binaries:::" | Out-File -Append $insecureFile
-                Write-Output "" | Out-File -Append $insecureFile
+			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -and $permissions_service -match "SUCCESS") {
+                		Write-Output "[*] :::Modifiable Service Binaries:::" | Out-File -Append $insecureFile
+                		Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath"
 				$permissions | Out-File -Append $insecureFile
+				$permissions_service | Out-File -Append $insecureFile
 				Write-Output "---------------------------------" | Out-File -Append $insecureFile
 			}
 		}
 		
 	}
-    else {
+    	else {
 	    Write-Output "[+] No Modifiable Service Binaries found in $dir."
 	}
 }
@@ -72,8 +73,8 @@ Write-Output ""
 # Ensure accesschk.exe is available
 $accesschkPath = ".\accesschk.exe"
 if (!(Test-Path $accesschkPath)) {
-    Write-Output "[!] Error: accesschk.exe not found. Download from Sysinternals and place it in the script directory."
-    exit
+	Write-Output "[!] Error: accesschk.exe not found. Download from Sysinternals and place it in the script directory."
+    	exit
 }
 
 # Get all service names
@@ -93,10 +94,10 @@ foreach ($service in $services) {
 
 	# Check if "RW NT AUTHORITY\Authenticated Users SERVICE_ALL_ACCESS" is present
 	if ($outputText -match "RW NT AUTHORITY\\Authenticated Users\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+WRITE_DAC") {
-        Write-Output "[*] :::Modifiable Services:::" | Out-File -Append $insecureFile
-        Write-Output "" | Out-File -Append $insecureFile
+        	Write-Output "[*] :::Modifiable Services:::" | Out-File -Append $insecureFile
+        	Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
-        Write-Output "Insecure Service Found: $service"
+        	Write-Output "Insecure Service Found: $service"
 		$accesschkOutput | Out-File -Append $insecureFile
 		Write-Output "---------------------------------" | Out-File -Append $insecureFile
 	}
@@ -130,9 +131,9 @@ foreach ($service in $services) {
 	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe" -and $servicePath -notmatch "msiexec.exe" -and $servicePath -notmatch "dllhost.exe" -and $servicePath -notmatch "SearchIndexer.exe") {
 		# Log the unquoted path
 		Write-Output "[*] :::Unquoted Service Path:::" | Out-File -Append $insecureFile
-        Write-Output "" | Out-File -Append $insecureFile
-        Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
-        Write-Output "Unquoted path found for service: $serviceName"
+        	Write-Output "" | Out-File -Append $insecureFile
+        	Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
+        	Write-Output "Unquoted path found for service: $serviceName"
 		Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
 		$serviceConfig | Out-File -Append $insecureFile
 		Write-Output "---------------------------------" | Out-File -Append $insecureFile
