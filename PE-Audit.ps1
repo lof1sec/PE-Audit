@@ -142,3 +142,27 @@ foreach ($service in $services) {
 }
 
 Write-Output "[+] Check Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: Installed Applications ::::
+
+Write-Output ""
+Write-Output "::::::::::Installed Applications::::::::::"
+Write-Output ""
+
+# Get all installed applications 32/64bit
+Write-Output "[+] Checking non-Microsoft Applications..."
+$32bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
+$64bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
+$AllAplications = $32bitApplications + $64bitApplications
+
+# Filter out Microsft Applications
+$NonMicrosoftApps = $AllAplications | Where-Object { $_.DisplayName -and $_.DisplayName -notmatch "Microsoft" -and $_.DisplayName -notmatch "Windows"}
+$TotalNonMicrosoftApps = $NonMicrosoftApps.Count
+
+Write-Output "[+] Total number of Non-Microsft Applications: $TotalNonMicrosoftApps"
+Write-Output $NonMicrosoftApps
+Write-Output "[*] :::Installed Applications:::" | Out-File -Append $insecureFile
+Write-Output $NonMicrosoftApps | Out-File -Append $insecureFile
+Write-Output "---------------------------------" | Out-File -Append $insecureFile
+Write-Output "[+] Check Completed. Results saved in $insecureFile"
