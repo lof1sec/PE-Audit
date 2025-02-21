@@ -2,9 +2,9 @@
 PE-Audit its a Powershell script that check for windows privilege escalation vector
 
 Checks available... at the moment
-- Modifiable Service Binaries
-- Modifiable Services
-- Unquoted Service Path (Mitre T1574.009)
+- **Permissive File System ACLs** (Mitre T1574.010 - Hijack Execution Flow: Executable Installer File Permissions Weakness)
+- **Weak Service Permissions** (Mitre T1574.010 - Hijack Execution Flow: Services File Permissions Weakness)
+- **Unquoted Service Path** (Mitre T1574.009 - Hijack Execution Flow: Path Interception by Unquoted Path)
 
 ## How to use:
 - Put **PE-Audit.ps1** and **accesschk.exe** in the same folder (ensure you have write permissions for the folder), and that's it!
