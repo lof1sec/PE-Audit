@@ -4,7 +4,7 @@ PE-Audit its a Powershell script that check for windows privilege escalation vec
 Checks available... at the moment
 - Modifiable Service Binaries
 - Modifiable Services
-- Unquoted Service Path
+- Unquoted Service Path (Mitre T1574.009)
 
 ## How to use:
 - Put **PE-Audit.ps1** and **accesschk.exe** in the same folder (ensure you have write permissions for the folder), and that's it!
