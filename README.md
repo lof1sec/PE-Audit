@@ -2,7 +2,7 @@
 PE-Audit its a Powershell script that check for windows privilege escalation vector
 
 Checks available... at the moment
-- **Permissive File System ACLs** (*Mitre T1574.010 - Hijack Execution Flow: Executable Installer File Permissions Weakness*)
+- **Permissive File System ACLs** (*Mitre T1574.005 - Hijack Execution Flow: Executable Installer File Permissions Weakness*)
 - **Weak Service Permissions** (*Mitre T1574.010 - Hijack Execution Flow: Services File Permissions Weakness*)
 - **Unquoted Service Path** (*Mitre T1574.009 - Hijack Execution Flow: Path Interception by Unquoted Path*)
 
