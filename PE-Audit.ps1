@@ -116,6 +116,7 @@ Write-Output ""
 $services = Get-WmiObject -Class Win32_Service
 $numServices = $services.Count
 Write-Output "[+] Total number of services: $numServices"
+Write-Output "[+] Checking services..."
 
 # Loop through each service
 foreach ($service in $services) {
