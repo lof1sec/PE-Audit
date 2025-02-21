@@ -8,7 +8,7 @@ Write-Output ""
 # Define the directories to search
 #$directories = @("C:\Program Files (x86)","$env:ProgramFiles","$env:USERPROFILE\Downloads")
 $directories = @("C:\Program Files (x86)","$env:ProgramFiles")
-Write-Output "::::::::::Modifiable Service Binaries::::::::::"
+Write-Output "::::::::::Permissive File System ACLs (T1574.005)::::::::::"
 Write-Output ""
 Write-Output "[+] Checking Directories: $directories"
 
@@ -20,7 +20,7 @@ Write-Output "[+] Current user: $env:USERNAME"
 # Clear the output files if they exist
 if (Test-Path $outputFile) { Remove-Item $outputFile }
 if (Test-Path $insecureFile) { Remove-Item $insecureFile }
-Write-Output "[*] Checking for :::Modifiable Service Binaries:::" | Out-File -Append $outputFile
+Write-Output "[*] Checking for :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $outputFile
 
 # Search for .exe files and check permissions
 foreach ($dir in $directories) {
@@ -45,7 +45,7 @@ foreach ($dir in $directories) {
 
 			# Check for insecure permissions
 			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -and $permissions_service -match "SUCCESS") {
-                		Write-Output "[*] :::Modifiable Service Binaries:::" | Out-File -Append $insecureFile
+                		Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
                 		Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath"
@@ -67,7 +67,7 @@ Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # :::: Modifiable Services ::::
 
 Write-Output ""
-Write-Output "::::::::::Modifiable Services::::::::::"
+Write-Output "::::::::::Weak Service Permissions (T1574.010)::::::::::"
 Write-Output ""
 
 # Ensure accesschk.exe is available
@@ -94,7 +94,7 @@ foreach ($service in $services) {
 
 	# Check if "RW NT AUTHORITY\Authenticated Users SERVICE_ALL_ACCESS" is present
 	if ($outputText -match "RW NT AUTHORITY\\Authenticated Users\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+WRITE_DAC") {
-        	Write-Output "[*] :::Modifiable Services:::" | Out-File -Append $insecureFile
+        	Write-Output "[*] :::Weak Service Permissions (T1574.010):::" | Out-File -Append $insecureFile
         	Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
         	Write-Output "Insecure Service Found: $service"
@@ -109,7 +109,7 @@ Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # :::: Unquoted Service Path ::::
 
 Write-Output ""
-Write-Output "::::::::::Unquoted Service Path::::::::::"
+Write-Output "::::::::::Unquoted Service Path (T1574.009)::::::::::"
 Write-Output ""
 
 # Get all services
@@ -130,7 +130,7 @@ foreach ($service in $services) {
 	# Check if the path contains spaces and is not quoted
 	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe" -and $servicePath -notmatch "msiexec.exe" -and $servicePath -notmatch "dllhost.exe" -and $servicePath -notmatch "SearchIndexer.exe") {
 		# Log the unquoted path
-		Write-Output "[*] :::Unquoted Service Path:::" | Out-File -Append $insecureFile
+		Write-Output "[*] :::Unquoted Service Path (T1574.009):::" | Out-File -Append $insecureFile
         	Write-Output "" | Out-File -Append $insecureFile
         	Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
         	Write-Output "Unquoted path found for service: $serviceName"
