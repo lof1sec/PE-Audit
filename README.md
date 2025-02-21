@@ -16,7 +16,7 @@ PS C:\tools> .\PE-Audit.ps1
 ::::: PE-Audit: Windows Privilege Escalation Checker :::::
 by Lof1 ;)
 
-::::::::::Modifiable Service Binaries::::::::::
+::::::::::Permissive File System ACLs (T1574.005)::::::::::
 
 [+] Checking Directories: C:\Program Files (x86) C:\Program Files
 [+] Current user: htb-student
@@ -25,16 +25,17 @@ Insecure ACL for: C:\Program Files (x86)\PCProtect\SecurityService.exe
 [+] Scanning C:\Program Files ...
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 
-::::::::::Modifiable Services::::::::::
+::::::::::Weak Service Permissions (T1574.010)::::::::::
 
 [+] Total number of services: 271
 [+] Checking services...
 Insecure Service Found: WindscribeService
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 
-::::::::::Unquoted Service Path::::::::::
+::::::::::Unquoted Service Path (T1574.009)::::::::::
 
 [+] Total number of services: 271
+[+] Checking services...
 Unquoted path found for service: GVFS.Service
 Unquoted path found for service: SystemExplorerHelpService
 [+] Check Completed. Results saved in PE_Insecure_Findings.txt
