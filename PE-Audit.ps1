@@ -203,7 +203,7 @@ Write-Output "[+] Check Completed. Results saved in $insecureFile"
 # :::: Schedule Tasks ::::
 
 Write-Output ""
-Write-Output "::::::::::Schedule Tasks (T1573.005)::::::::::"
+Write-Output "::::::::::Scheduled Task (T1053.005)::::::::::"
 Write-Output ""
 
 # Get all TaskNames
@@ -236,7 +236,7 @@ foreach ($task in $taskNames) {
 }
 
 Write-Output ""
-Write-Output "::::::::::Possible Schedule Task Scripts (T1573.005)::::::::::"
+Write-Output "::::::::::Possible Scheduled Task Scripts (T1053.005)::::::::::"
 Write-Output ""
 
 # Define folders to exclude
