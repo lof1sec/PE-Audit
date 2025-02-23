@@ -27,7 +27,7 @@ Write-Output "[*] Checking for :::Permissive File System ACLs (T1574.005):::" | 
 foreach ($dir in $directories) {
 	if (Test-Path $dir) {
 		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
-        Write-Output "[+] Scanning $dir ..."
+        	Write-Output "[+] Scanning $dir ..."
 		# Get all .exe files
 		$files = Get-ChildItem -Path $dir -Recurse -Include "*.exe" -File -ErrorAction SilentlyContinue
 
@@ -38,7 +38,7 @@ foreach ($dir in $directories) {
 			# Get the icacls and sc output
 			$permissions = icacls $filePath
 			$fileService = [System.IO.Path]::GetFileNameWithoutExtension($filePath)
-      		$permissions_service = sc.exe qc $fileService
+      			$permissions_service = sc.exe qc $fileService
       
 			# Save all results
 			$permissions | Out-File -Append $outputFile
@@ -46,8 +46,8 @@ foreach ($dir in $directories) {
 
 			# Check for insecure permissions
 			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Users:\(F\)" -or $permissions -match "BUILTIN\\Users:\(M\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "Everyone:\(F\)" -or $permissions -match "Everyone:\(M\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(M\)" -or $permissions -match "Authenticated Users:\(F\)" -or $permissions -match "Authenticated Users:\(M\)" -or $permissions -match "Authenticated Users:\(I\)\(F\)" -and $permissions_service -match "SUCCESS") {
-                Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
-                Write-Output "" | Out-File -Append $insecureFile
+                		Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
+                		Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath"
 				$permissions | Out-File -Append $insecureFile
@@ -95,10 +95,10 @@ foreach ($service in $services) {
 
 	# Check if "RW NT AUTHORITY\Authenticated Users SERVICE_ALL_ACCESS" is present
 	if ($outputText -match "RW NT AUTHORITY\\Authenticated Users\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+SERVICE_ALL_ACCESS" -or $outputText -match "RW Everyone\s+WRITE_DAC") {
-        Write-Output "[*] :::Weak Service Permissions (T1574.010):::" | Out-File -Append $insecureFile
-        Write-Output "" | Out-File -Append $insecureFile
+        	Write-Output "[*] :::Weak Service Permissions (T1574.010):::" | Out-File -Append $insecureFile
+        	Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
-        Write-Output "Insecure Service Found: $service"
+        	Write-Output "Insecure Service Found: $service"
 		$accesschkOutput | Out-File -Append $insecureFile
 		Write-Output "---------------------------------" | Out-File -Append $insecureFile
 	}
@@ -133,9 +133,9 @@ foreach ($service in $services) {
 	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe" -and $servicePath -notmatch "msiexec.exe" -and $servicePath -notmatch "dllhost.exe" -and $servicePath -notmatch "SearchIndexer.exe") {
 		# Log the unquoted path
 		Write-Output "[*] :::Unquoted Service Path (T1574.009):::" | Out-File -Append $insecureFile
-        Write-Output "" | Out-File -Append $insecureFile
-        Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
-        Write-Output "Unquoted path found for service: $serviceName"
+        	Write-Output "" | Out-File -Append $insecureFile
+        	Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
+        	Write-Output "Unquoted path found for service: $serviceName"
 		Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
 		$serviceConfig | Out-File -Append $insecureFile
 		Write-Output "---------------------------------" | Out-File -Append $insecureFile
@@ -191,16 +191,16 @@ foreach ($task in $taskNames) {
     $scheduleType = ($taskInfo | Where-Object { $_ -match "^Schedule Type:|Tipo de programaci" }) -replace "Schedule Type:\s+", "" -replace "Tipo de programación:\s+", ""
 		
 		# Output extracted details
-		if ($taskToRun -match ".exe|.ps1|.bat|.vbs|.cmd|.js|.wsf|.msi|.msp|.scr" -and $taskToRun -notmatch "system32|sdxhelper.exe|OfficeC2RClient.exe|MpCmdRun.exe|BthUdTask.exe|config upnphost" -and $taskState -notmatch "Disabled|Deshabilitado" -and $taskRunAs -match "SYSTEM") {
-        Write-Output "[*] :::Schedule Tasks:::" | Out-File -Append $insecureFile
-		Write-Output "" | Out-File -Append $insecureFile
-		Write-Output "TaskName: $taskName"
-		Write-Output "TaskName: $taskName" | Out-File -Append $insecureFile
-        Write-Output "Task To Run: $taskToRun" | Out-File -Append $insecureFile
-        Write-Output "Run As User: $taskRunAs" | Out-File -Append $insecureFile
-        Write-Output "Scheduled Task State: $taskState" | Out-File -Append $insecureFile
-        Write-Output "Schedule Type: $scheduleType" | Out-File -Append $insecureFile
-		Write-Output "---------------------------------"
+  		if ($taskToRun -match ".exe|.ps1|.bat|.vbs|.cmd|.js|.wsf|.msi|.msp|.scr" -and $taskToRun -notmatch "system32|sdxhelper.exe|OfficeC2RClient.exe|MpCmdRun.exe|BthUdTask.exe|config upnphost" -and $taskState -notmatch "Disabled|Deshabilitado" -and $taskRunAs -match "SYSTEM") {
+        		Write-Output "[*] :::Schedule Tasks:::" | Out-File -Append $insecureFile
+			Write-Output "" | Out-File -Append $insecureFile
+			Write-Output "TaskName: $taskName"
+			Write-Output "TaskName: $taskName" | Out-File -Append $insecureFile
+        		Write-Output "Task To Run: $taskToRun" | Out-File -Append $insecureFile
+        		Write-Output "Run As User: $taskRunAs" | Out-File -Append $insecureFile
+        		Write-Output "Scheduled Task State: $taskState" | Out-File -Append $insecureFile
+        		Write-Output "Schedule Type: $scheduleType" | Out-File -Append $insecureFile
+			Write-Output "---------------------------------"
     }   
 }
 
@@ -229,9 +229,9 @@ foreach ($drive in $drives) {
 foreach ($dir in $folderList) {
 	if (Test-Path $dir) {
 		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
-        Write-Output "[+] Scanning $dir ..."
+        	Write-Output "[+] Scanning $dir ..."
 		
-        # Get all .exe and .dll files
+        	# Get all .exe and .dll files
 		$files = Get-ChildItem -Path $dir -Recurse -Include ("*.exe","*.ps1","*.bat","*.vbs","*.cmd", "*.js", "*.wsf", "*.msi", "*.msp", "*.scr") -File -ErrorAction SilentlyContinue
 
 		foreach ($file in $files) {
@@ -249,8 +249,8 @@ foreach ($dir in $folderList) {
 
 			# Check for insecure permissions
 			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Users:\(F\)" -or $permissions -match "BUILTIN\\Users:\(M\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "Everyone:\(F\)" -or $permissions -match "Everyone:\(M\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(M\)" -or $permissions -match "Authenticated Users:\(F\)" -or $permissions -match "Authenticated Users:\(M\)" -or $permissions -match "Authenticated Users:\(I\)\(F\)" ) {
-                Write-Output "[*] :::Possible Schedule Task Scripts:::" | Out-File -Append $insecureFile
-                Write-Output "" | Out-File -Append $insecureFile
+                		Write-Output "[*] :::Possible Schedule Task Scripts:::" | Out-File -Append $insecureFile
+                		Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath"
 				$permissions | Out-File -Append $insecureFile
