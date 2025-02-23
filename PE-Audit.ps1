@@ -12,7 +12,7 @@ if (Test-Path $insecureFile) { Remove-Item $insecureFile }
 
 # ------------------------------------------------------------------------ #
 # :::: User Privilege ::::
-Write-Output "::::::::::Token Abusing: User Privilege (TXXXX)::::::::::"
+Write-Output "::::::::::Token Abusing: User Privilege (T1134)::::::::::"
 Write-Output ""
 
 # Run 'whoami /priv' to list privileges
@@ -35,7 +35,7 @@ $riskyPrivileges = @(
 # Check for dangerous privileges in the output
 foreach ($privilege in $riskyPrivileges) {
 	if ($privileges -match $privilege) {
-		Write-Output "[*] :::Token Abusing: User Privilege (TXXXX):::" | Out-File -Append $insecureFile
+		Write-Output "[*] :::Token Abusing: User Privilege (T1134):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "High-Risk Privilege Found: $privilege" | Out-File -Append $insecureFile
 		Write-Output "High-Risk Privilege Found: $privilege"
