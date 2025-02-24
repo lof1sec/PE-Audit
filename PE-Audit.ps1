@@ -12,6 +12,7 @@ if (Test-Path $insecureFile) { Remove-Item $insecureFile }
 
 # ------------------------------------------------------------------------ #
 # :::: User Privilege ::::
+Write-Output ""
 Write-Output "::::::::::Token Abusing: User Privilege (T1134)::::::::::"
 Write-Output ""
 
@@ -49,6 +50,7 @@ Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # Define the directories to search
 #$directories = @("C:\Program Files (x86)","$env:ProgramFiles","$env:USERPROFILE\Downloads")
 $directories = @("C:\Program Files (x86)","$env:ProgramFiles")
+Write-Output ""
 Write-Output "::::::::::Permissive File System ACLs (T1574.005)::::::::::"
 Write-Output ""
 Write-Output "[+] Checking Directories: $directories"
@@ -76,7 +78,7 @@ foreach ($dir in $directories) {
 			Write-Output "---------------------------------" | Out-File -Append $outputFile
 
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Users:\(F\)" -or $permissions -match "BUILTIN\\Users:\(M\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "Everyone:\(F\)" -or $permissions -match "Everyone:\(M\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(M\)" -or $permissions -match "Authenticated Users:\(F\)" -or $permissions -match "Authenticated Users:\(M\)" -or $permissions -match "Authenticated Users:\(I\)\(F\)" -and $permissions_service -match "SUCCESS") {
+			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone:.+F" -or $permissions -match "Everyone:.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" -and $permissions_service -match "SUCCESS") {
 				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
@@ -279,7 +281,7 @@ foreach ($dir in $folderList) {
 			
 
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN\\Users:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Users:\(F\)" -or $permissions -match "BUILTIN\\Users:\(M\)" -or $permissions -match "Everyone:\(I\)\(F\)" -or $permissions -match "Everyone:\(F\)" -or $permissions -match "Everyone:\(M\)" -or $permissions -match "BUILTIN\\Usuarios:\(I\)\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(F\)" -or $permissions -match "BUILTIN\\Usuarios:\(M\)" -or $permissions -match "Authenticated Users:\(F\)" -or $permissions -match "Authenticated Users:\(M\)" -or $permissions -match "Authenticated Users:\(I\)\(F\)" ) {
+			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone:.+F" -or $permissions -match "Everyone:.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" ) {
 				Write-Output "[*] :::Possible Schedule Task Scripts:::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
