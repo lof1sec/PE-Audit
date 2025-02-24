@@ -2,6 +2,7 @@ Write-Output ""
 Write-Output "::::: PE-Audit: Windows Privilege Escalation Checker :::::"
 Write-Output "by Lof1 ;)"
 Write-Output ""
+Write-Output ""
 
 # Output files
 $outputFile = "PE_Audit_Report.txt"
@@ -9,6 +10,7 @@ $insecureFile = "PE_Insecure_Findings.txt"
 # Clear the output files if they exist
 if (Test-Path $outputFile) { Remove-Item $outputFile }
 if (Test-Path $insecureFile) { Remove-Item $insecureFile }
+Write-Output "[+] Current user: $env:USERNAME"
 
 # ------------------------------------------------------------------------ #
 # :::: User Privilege ::::
@@ -54,7 +56,6 @@ Write-Output ""
 Write-Output "::::::::::Permissive File System ACLs (T1574.005)::::::::::"
 Write-Output ""
 Write-Output "[+] Checking Directories: $directories"
-Write-Output "[+] Current user: $env:USERNAME"
 Write-Output "[*] Checking for :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $outputFile
 
 # Search for .exe files and check permissions
@@ -70,15 +71,15 @@ foreach ($dir in $directories) {
 			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
 			
 			# Get the icacls and sc output
-			$permissions = icacls $filePath
+			$permissions = icacls $filePath 2>$null
 			$fileService = [System.IO.Path]::GetFileNameWithoutExtension($filePath)
-			$permissions_service = sc.exe qc $fileService
+			$permissions_service = sc.exe qc $fileService 2>$null
 			# Save all results
 			$permissions | Out-File -Append $outputFile
 			Write-Output "---------------------------------" | Out-File -Append $outputFile
-
+			
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone:.+F" -or $permissions -match "Everyone:.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+F" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+M" -and $permissions_service -match "SUCCESS") {
+			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone.+F" -or $permissions -match "Everyone.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+F" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+M" -and $permissions_service -match "SUCCESS") {
 				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
@@ -122,22 +123,22 @@ $identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTI
 
 # Loop through each service and identity
 foreach ($service in $services) {
-    foreach ($identity in $identities) {
+	foreach ($identity in $identities) {
 
-        # Run accesschk.exe
-        $accesschkOutput = & $accesschkPath /accepteula -quvcw -nobanner $identity $service 2>&1
+		# Run accesschk.exe
+		$accesschkOutput = & $accesschkPath /accepteula -quvcw -nobanner $identity $service 2>$null
 
-        if ($accesschkOutput -match "SERVICE_ALL_ACCESS|WRITE_DAC|SERVICE_CHANGE_CONFIG"){
-            # Display and save output
-            Write-Output "[*] :::Weak Service Permissions (T1574.010):::" | Out-File -Append $insecureFile
-		    Write-Output "" | Out-File -Append $insecureFile
-            Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
-            Write-Output "Identity: $identity" | Out-File -Append $insecureFile
-            $accesschkOutput | Out-File -Append $insecureFile
-            Write-Output "Insecure Service Found: $service"
-            Write-Output "---------------------------------" | Out-File -Append $insecureFile
-        }
-    }
+		if ($accesschkOutput -match "SERVICE_ALL_ACCESS|WRITE_DAC|SERVICE_CHANGE_CONFIG"){
+			# Display and save output
+			Write-Output "[*] :::Weak Service Permissions (T1574.010):::" | Out-File -Append $insecureFile
+			Write-Output "" | Out-File -Append $insecureFile
+			Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
+			Write-Output "Identity: $identity" | Out-File -Append $insecureFile
+			$accesschkOutput | Out-File -Append $insecureFile
+			Write-Output "Insecure Service Found: $service"
+			Write-Output "---------------------------------" | Out-File -Append $insecureFile
+		}
+	}
 }
 
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
@@ -159,7 +160,7 @@ Write-Output "[+] Checking services..."
 foreach ($service in $services) {
 	$serviceName = $service.Name
 	$servicePath = $service.PathName
-	$serviceConfig = & sc.exe qc $serviceName 2>&1
+	$serviceConfig = & sc.exe qc $serviceName 2>$null
 	Write-Output "Service Name: $serviceName" | Out-File -Append $outputFile
 	Write-Output "Service Path: $servicePath" | Out-File -Append $outputFile
 	$serviceConfig | Out-File -Append $outputFile
@@ -228,7 +229,7 @@ foreach ($task in $taskNames) {
 
 	# Output extracted details
 	if ($taskToRun -match ".exe|.ps1|.bat|.vbs|.cmd|.js|.wsf|.msi|.msp|.scr" -and $taskToRun -notmatch "system32|sdxhelper.exe|OfficeC2RClient.exe|MpCmdRun.exe|BthUdTask.exe|config upnphost" -and $taskState -notmatch "Disabled|Deshabilitado" -and $taskRunAs -match "SYSTEM") {
-		Write-Output "[*] :::Schedule Tasks:::" | Out-File -Append $insecureFile
+		Write-Output "[*] :::Schedule Tasks (T1053.005):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "TaskName: $taskName"
 		Write-Output "TaskName: $taskName" | Out-File -Append $insecureFile
@@ -275,7 +276,7 @@ foreach ($dir in $folderList) {
 			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
 			
 			# Get the icacls output
-			$permissions = icacls $filePath
+			$permissions = icacls $filePath 2>$null
 			
 			# Save all results
 			$permissions | Out-File -Append $outputFile
@@ -285,7 +286,7 @@ foreach ($dir in $folderList) {
 
 			# Check for insecure permissions
 			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone:.+F" -or $permissions -match "Everyone:.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" ) {
-				Write-Output "[*] :::Possible Schedule Task Scripts:::" | Out-File -Append $insecureFile
+				Write-Output "[*] :::Possible Schedule Task Scripts (T1053.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath"
@@ -309,28 +310,28 @@ $paths = Get-ChildItem -Path "HKLM:\SYSTEM\CurrentControlSet\Services\" | ForEac
 Write-Output '[+] Scanning "HKLM:\SYSTEM\CurrentControlSet\Services\"'
 
 # Define the identities you're looking for
-$identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users")
+$identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users", $env:USERNAME)
 
 # Loop through each path and get detailed ACL info
 foreach ($path in $paths) {
-    # Get the ACL for the current registry path
-    $acl = Get-Acl -Path $path
-    
-    # Loop through each identity and check if it has FullControl
-    $match = $acl.Access | Where-Object { 
-        $identities -contains $_.IdentityReference -and $_.RegistryRights -match "FullControl|KEY_ALL_ACCESS" 
-    }
-    
-    # If the match is found, output it
-    if ($match) {
-        $cleanPath = $path -replace "Microsoft.PowerShell.Core\\Registry::", ""
+	# Get the ACL for the current registry path
+	$acl = Get-Acl -Path $path 2>$null
+	
+	# Loop through each identity and check if it has FullControl
+	$match = $acl.Access | Where-Object { 
+	$identities -contains $_.IdentityReference -and $_.RegistryRights -match "FullControl|KEY_ALL_ACCESS" 
+	}
+	
+	# If the match is found, output it
+	if ($match) {
+		$cleanPath = $path -replace "Microsoft.PowerShell.Core\\Registry::", ""
 		$regQuery = reg.exe query $cleanPath 2>&1
-        Write-Output "[*] :::Weak Registry permission (T1574.011):::" | Out-File -Append $insecureFile
+		Write-Output "[*] :::Weak Registry permission (T1574.011):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
-        Write-Output "Weak Registry permission found: $cleanPath" | Out-File -Append $insecureFile 
-        Write-Output "Weak Registry permission found: $cleanPath"
+		Write-Output "Weak Registry permission found: $cleanPath" | Out-File -Append $insecureFile 
+		Write-Output "Weak Registry permission found: $cleanPath"
 		Write-Output $regQuery | Out-File -Append $insecureFile
 
-    }
+	}
 }
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
