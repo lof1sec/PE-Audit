@@ -8,6 +8,7 @@ Checks available... at the moment
 - **Unquoted Service Path** (*Mitre T1574.009 - Hijack Execution Flow: Path Interception by Unquoted Path*)
 - **Installed Applications**
 - **Scheduled Task** (*Mitre T1053.005 - Scheduled Task/Job: Scheduled Task*)
+- **Weak Registry permission** (*Mitre T1574.011 - Hijack Execution Flow: Services Registry Permissions Weakness*)
 
 ## How to use:
 - Put `PE-Audit.ps1` and `accesschk.exe` in the same folder (ensure you have write permissions for the folder), and that's it!
