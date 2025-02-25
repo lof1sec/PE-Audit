@@ -19,7 +19,7 @@ Write-Output "::::::::::Token Abusing: User Privilege (T1134)::::::::::"
 Write-Output ""
 
 # Run 'whoami /priv' to list privileges
-$privileges = whoami /priv 2>&1
+$privileges = whoami /priv 2>$null
 
 # Define risky privileges
 $riskyPrivileges = @(
@@ -79,7 +79,7 @@ foreach ($dir in $directories) {
 			Write-Output "---------------------------------" | Out-File -Append $outputFile
 			
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone.+F" -or $permissions -match "Everyone.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+F" -or $permissions -match "NT AUTHORITY.+INTERACTIVE:.+M" -and $permissions_service -match "SUCCESS") {
+			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
 				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
@@ -285,7 +285,7 @@ foreach ($dir in $folderList) {
 			
 
 			# Check for insecure permissions
-			if ($permissions -match "BUILTIN.+Users:.+F" -or $permissions -match "BUILTIN.+Users:.+M" -or $permissions -match "Everyone:.+F" -or $permissions -match "Everyone:.+M" -or $permissions -match "BUILTIN.+Usuarios:.+F" -or $permissions -match "BUILTIN.+Usuarios:.+M" -or $permissions -match "Authenticated Users:.+F" -or $permissions -match "Authenticated Users:.+M" ) {
+			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])" ) {
 				Write-Output "[*] :::Possible Schedule Task Scripts (T1053.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
