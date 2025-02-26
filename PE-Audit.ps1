@@ -365,3 +365,54 @@ foreach ($path in $paths) {
 	}
 }
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: Logon Autostart Execution Registry Run Keys ::::
+
+Write-Output ""
+Write-Output "::::::::::Boot or Logon Autostart Execution: Registry Run Keys (T1547.001)::::::::::"
+Write-Output ""
+
+# Define registry keys to check
+$registryKeys = @(
+	"HKLM:\Software\Microsoft\Windows\CurrentVersion\Run",
+	"HKCU:\Software\Microsoft\Windows\CurrentVersion\Run",
+	"HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce",
+	"HKCU:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+)
+
+# Loop through each registry key
+foreach ($regKey in $registryKeys) {
+
+	# Check if the registry key exists
+	if (Test-Path $regKey) {
+		# Get all values inside the key
+		$values = Get-ItemProperty -Path $regKey
+
+		# Loop through each value in the registry key
+		foreach ($entry in $values.PSObject.Properties) {
+			$exePath = $entry.Value
+
+			# Only process if the entry contains a path
+			if ($exePath -match "([A-Z]:\\.*?\.exe)") {
+				$cleanPath = $matches[1] -replace '"', ''  # Remove quotes if present
+				$permissions = icacls $cleanPath 2>$null
+				
+				# Check if the file exists
+				if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
+					Write-Output "[*] :::Boot or Logon Autostart Execution: Registry Run Keys (T1547.001):::" | Out-File -Append $insecureFile
+					Write-Output "" | Out-File -Append $insecureFile
+					Write-Output "[+] Checking: $regKey" | Out-File -Append $insecureFile
+					Write-Output "Found Executable with weak ACL: $cleanPath" | Out-File -Append $insecureFile
+					$permissions | Out-File -Append $insecureFile
+					Write-Output "[+] Checking: $regKey"
+					Write-Output "Found Executable with weak ACL: $cleanPath"
+				}
+			}
+		}
+	} else {
+		Write-Output "[-] Registry key not found: $regKey"
+	}
+}
+
+Write-Output "[+] Scan Completed. Results saved in $insecureFile"
