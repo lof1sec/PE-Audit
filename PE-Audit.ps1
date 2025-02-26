@@ -418,7 +418,7 @@ foreach ($regKey in $registryKeys) {
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
-# :::: Logon Autostart Execution Registry Run Keys ::::
+# :::: AlwaysInstallElevated ::::
 
 Write-Output ""
 Write-Output "::::::::::AlwaysInstallElevated::::::::::"
