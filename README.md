@@ -9,6 +9,7 @@ Checks available... at the moment
 - **Installed Applications**
 - **Scheduled Task** (*Mitre T1053.005 - Scheduled Task/Job: Scheduled Task*)
 - **Weak Registry permission** (*Mitre T1574.011 - Hijack Execution Flow: Services Registry Permissions Weakness*)
+- **Registry AutoRun Keys** (*Mitre T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys*)
 
 ## How to use:
 - Put `PE-Audit.ps1` and `accesschk.exe` in the same folder (ensure you have write permissions for the folder), and that's it!
