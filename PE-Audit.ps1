@@ -49,6 +49,9 @@ Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # ------------------------------------------------------------------------ #
 # :::: Modifiable Service Binaries ::::
 
+# Initialize an empty list
+$servicePathList = @()
+
 # Define the directories to search
 #$directories = @("C:\Program Files (x86)","$env:ProgramFiles","$env:USERPROFILE\Downloads")
 $directories = @("C:\Program Files (x86)","$env:ProgramFiles")
@@ -72,8 +75,7 @@ foreach ($dir in $directories) {
 			
 			# Get the icacls and sc output
 			$permissions = icacls $filePath 2>$null
-			$fileService = [System.IO.Path]::GetFileNameWithoutExtension($filePath)
-			$permissions_service = sc.exe qc $fileService 2>$null
+
 			# Save all results
 			$permissions | Out-File -Append $outputFile
 			Write-Output "---------------------------------" | Out-File -Append $outputFile
@@ -83,17 +85,41 @@ foreach ($dir in $directories) {
 				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
-				Write-Output "Insecure ACL for: $filePath"
 				$permissions | Out-File -Append $insecureFile
-				$permissions_service | Out-File -Append $insecureFile
+				$servicePathList += $filePath
 				Write-Output "---------------------------------" | Out-File -Append $insecureFile
 			}
 		}
-		
 	}
-		else {
-		Write-Output "[+] No Modifiable Service Binaries found in $dir."
-	}
+}
+
+# Get all service names
+$services = Get-WmiObject -Class Win32_Service
+
+# Loop through each service
+foreach ($service in $services) {
+	$serviceName = $service.Name
+	$servicePath = $service.PathName
+	# Check if the path contains spaces and is not quoted
+	$permissions_service = sc.exe qc $serviceName 2>$null
+	foreach ($singlePath in $servicePathList) {
+		# Escape file path for regex
+		$safePath = [regex]::Escape($singlePath)
+
+		if ($permissions_service -match $safePath) {
+			# Log the unquoted path
+			Write-Output "[*] Checking for Service :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
+			Write-Output "" | Out-File -Append $insecureFile
+			Write-Output "Insecure ACL for service: $serviceName"
+			Write-Output "Service Path: $servicePath"
+			Write-Output "Insecure ACL for service: $serviceName" | Out-File -Append $insecureFile
+			Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
+			$permissions_service | Out-File -Append $insecureFile
+			$permissions = icacls $singlePath 2>$null
+			$permissions | Out-File -Append $insecureFile
+			Write-Output "---------------------------------" | Out-File -Append $insecureFile
+		}
+	}	
 }
 
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
@@ -167,7 +193,7 @@ foreach ($service in $services) {
 	Write-Output "---------------------------------" | Out-File -Append $outputFile
 	
 	# Check if the path contains spaces and is not quoted
-	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe" -and $servicePath -notmatch "msiexec.exe" -and $servicePath -notmatch "dllhost.exe" -and $servicePath -notmatch "SearchIndexer.exe") {
+	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe|msiexec.exe|dllhost.exe|SearchIndexer.exe") {
 		# Log the unquoted path
 		Write-Output "[*] :::Unquoted Service Path (T1574.009):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
