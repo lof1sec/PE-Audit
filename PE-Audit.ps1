@@ -110,9 +110,9 @@ foreach ($service in $services) {
 			# Log the unquoted path
 			Write-Output "[*] Checking for Service :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 			Write-Output "" | Out-File -Append $insecureFile
-			Write-Output "Insecure ACL for service: $serviceName"
+			Write-Output "Insecure ACL for Service: $serviceName"
 			Write-Output "Service Path: $servicePath"
-			Write-Output "Insecure ACL for service: $serviceName" | Out-File -Append $insecureFile
+			Write-Output "Insecure ACL for Service: $serviceName" | Out-File -Append $insecureFile
 			Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
 			$permissions_service | Out-File -Append $insecureFile
 			$permissions = icacls $singlePath 2>$null
@@ -121,6 +121,9 @@ foreach ($service in $services) {
 		}
 	}	
 }
+Write-Output ""
+Write-Output "Insecure ACL for Executables:"
+Write-Output $servicePathList
 
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
@@ -351,12 +354,13 @@ foreach ($path in $paths) {
 	# If the match is found, output it
 	if ($match) {
 		$cleanPath = $path -replace "Microsoft.PowerShell.Core\\Registry::", ""
-		$regQuery = reg.exe query $cleanPath 2>&1
+		$regQuery = reg.exe query $cleanPath 2>$null
 		Write-Output "[*] :::Weak Registry permission (T1574.011):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Weak Registry permission found: $cleanPath" | Out-File -Append $insecureFile 
 		Write-Output "Weak Registry permission found: $cleanPath"
 		Write-Output $regQuery | Out-File -Append $insecureFile
+		Write-Output $match | Out-File -Append $insecureFile
 
 	}
 }
