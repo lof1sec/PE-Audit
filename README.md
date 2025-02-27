@@ -26,7 +26,7 @@ PS C:\tools> .\PE-Audit.ps1
 by Lof1 ;)
 
 
-[+] Current user: htb-student
+[+] Current user: user
 
 ::::::::::Token Abusing: User Privilege (T1134)::::::::::
 
@@ -37,82 +37,97 @@ by Lof1 ;)
 [+] Checking Directories: C:\Program Files (x86) C:\Program Files
 [+] Scanning C:\Program Files (x86) ...
 [+] Scanning C:\Program Files ...
-Insecure ACL for service: SecurityService
-Service Path: "C:\Program Files (x86)\PCProtect\SecurityService.exe"
+Insecure ACL for Service: filepermsvc
+Service Path: "C:\Program Files\File Permissions Service\filepermservice.exe"
+
+Insecure ACL for Executables:
+C:\Program Files\Autorun Program\program.exe
+C:\Program Files\File Permissions Service\filepermservice.exe
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 
 ::::::::::Weak Service Permissions (T1574.010)::::::::::
 
-[+] Total number of services: 271
+[+] Total number of services: 213
 [+] Checking services...
-Insecure Service Found: WindscribeService
-Insecure Service Found: WindscribeService
+Insecure Service Found: daclsvc
+Insecure Service Found: daclsvc
+Insecure Service Found: daclsvc
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 
 ::::::::::Unquoted Service Path (T1574.009)::::::::::
 
-[+] Total number of services: 271
+[+] Total number of services: 213
 [+] Checking services...
-Unquoted path found for service: GVFS.Service
-Unquoted path found for service: SystemExplorerHelpService
+Unquoted path found for service: AWSLiteAgent
+Unquoted path found for service: unquotedsvc
 [+] Check Completed. Results saved in PE_Insecure_Findings.txt
 
-::::::::::Installed Applications::::::::::
+:::::::::: Installed Applications ::::::::::
 
 [+] Checking non-Microsoft Applications...
-[+] Total number of Non-Microsft Applications: 10
+[+] Total number of Non-Microsoft Applications: 2
 
 DisplayName
 -----------
-Google Chrome
-Npcap
-PCProtect
-Wireshark 3.4.4 64-bit
-System Explorer 7.0.0
-Druva inSync 6.6.3
-Windscribe
-FreeLAN 2.0.0
-GVFS version 1.0.21014.1
-VMware Tools
+Amazon SSM Agent
+Amazon SSM Agent
 [+] Check Completed. Results saved in PE_Insecure_Findings.txt
 
 ::::::::::Scheduled Task (T1053.005)::::::::::
 
-TaskName: \Microsoft\Windows\CUAssistant\CULauncher \Microsoft\Windows\CUAssistant\CULauncher
----------------------------------
-TaskName: \Microsoft\Windows\CUAssistant\CULauncher \Microsoft\Windows\CUAssistant\CULauncher
----------------------------------
 
 ::::::::::Possible Scheduled Task Scripts (T1053.005)::::::::::
 
-[+] Scanning C:\inetpub ...
+[+] Scanning C:\DevTools ...
+Insecure ACL for: C:\DevTools\CleanUp.ps1
 [+] Scanning C:\PerfLogs ...
-[+] Scanning C:\Scripts ...
-[+] Scanning C:\Tools ...
-Insecure ACL for: C:\Tools\PSSQLite\Invoke-SqliteBulkCopy.ps1
-Insecure ACL for: C:\Tools\PSSQLite\Invoke-SqliteQuery.ps1
-Insecure ACL for: C:\Tools\PSSQLite\New-SqliteConnection.ps1
-Insecure ACL for: C:\Tools\PSSQLite\Out-DataTable.ps1
-Insecure ACL for: C:\Tools\PSSQLite\Update-Sqlite.ps1
-Insecure ACL for: C:\Tools\PSSQLite-master\Tests\Helpers\Initialize-PesterPath.ps1
-Insecure ACL for: C:\Tools\PSSQLite-master\Tests\Helpers\Invoke-PesterFromAppveyor.ps1
-Insecure ACL for: C:\Tools\PSSQLite-master\Tests\Helpers\Invoke-PSGalleryDeployment.ps1
-Insecure ACL for: C:\Tools\PSSQLite-master\Tests\Helpers\Read-PesterOutput.ps1
-Insecure ACL for: C:\Tools\PSSQLite-master\Tests\Invoke-SQLiteQuery.Tests.ps1
-Insecure ACL for: C:\Tools\accesschk.exe
-Insecure ACL for: C:\Tools\check.ps1
-Insecure ACL for: C:\Tools\Druva.ps1
-Insecure ACL for: C:\Tools\PowerUp.ps1
-Insecure ACL for: C:\Tools\Seatbelt.exe
-Insecure ACL for: C:\Tools\SharpChrome.exe
-Insecure ACL for: C:\Tools\SharpUp.exe
-Insecure ACL for: C:\Tools\Watson.exe
+[+] Scanning C:\PrivEsc ...
+[+] Scanning C:\Temp ...
 [+] Scanning C:\Users ...
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 
 ::::::::::Weak Registry permission (T1574.011)::::::::::
 
 [+] Scanning "HKLM:\SYSTEM\CurrentControlSet\Services\"
+Weak Registry permission found: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\regsvc
 [+] Scan Completed. Results saved in PE_Insecure_Findings.txt
+
+::::::::::Boot or Logon Autostart Execution: Registry Run Keys (T1547.001)::::::::::
+
+[+] Checking: HKLM:\Software\Microsoft\Windows\CurrentVersion\Run
+Found Executable with weak ACL: C:\Program Files\Autorun Program\program.exe
+[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
+
+::::::::::AlwaysInstallElevated::::::::::
+
+Found: HKLM:\Software\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated is ENABLED (1)
+Found: HKCU:\Software\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated is ENABLED (1)
+[+] Check Completed. Results saved in PE_Insecure_Findings.txt
+
+::::::::::Boot or Logon Autostart Execution: Startup Folder (T1547.001)::::::::::
+
+Global StartUp Folder with weak ACL: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
+[+] Check Completed. Results saved in PE_Insecure_Findings.txt
+
+::::::::::Stored Credentials::::::::::
+
+Stored credentials for users:
+02nfpgrklkitqatu
+WIN-QBA94KB3IOF\admin
+[+] Check Completed. Results saved in PE_Insecure_Findings.txt
+
+::::::::::Windows Registry Hives Backups::::::::::
+
+Backup folder: C:\Windows\Repair\
+
+
+
+Name     Length LastWriteTime
+----     ------ -------------
+SAM       65536 2/27/2025 11:47:27 AM
+SYSTEM 18591744 2/27/2025 11:47:26 AM
+
+
+[+] Check Completed. Results saved in PE_Insecure_Findings.txt
 PS C:\tools> 
 ```
