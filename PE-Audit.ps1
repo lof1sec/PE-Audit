@@ -10,7 +10,7 @@ $insecureFile = "PE_Insecure_Findings.txt"
 # Clear the output files if they exist
 if (Test-Path $outputFile) { Remove-Item $outputFile }
 if (Test-Path $insecureFile) { Remove-Item $insecureFile }
-Write-Host "[+] Current user: $env:USERNAME" -ForegroundColor Green
+Write-Output "[+] Current user: $env:USERNAME"
 
 # ------------------------------------------------------------------------ #
 # :::: User Privilege ::::
@@ -41,7 +41,7 @@ foreach ($privilege in $riskyPrivileges) {
 		Write-Output "[*] :::Token Abusing: User Privilege (T1134):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "High-Risk Privilege Found: $privilege" | Out-File -Append $insecureFile
-		Write-Host "High-Risk Privilege Found: $privilege" -ForegroundColor Red
+		Write-Output "High-Risk Privilege Found: $privilege"
 	}
 }
 
@@ -110,8 +110,8 @@ foreach ($service in $services) {
 			# Log the unquoted path
 			Write-Output "[*] Checking for Service :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
 			Write-Output "" | Out-File -Append $insecureFile
-			Write-Host "Insecure ACL for Service: $serviceName" -ForegroundColor Red
-			Write-Host "Service Path: $servicePath" -ForegroundColor Red
+			Write-Output "Insecure ACL for Service: $serviceName"
+			Write-Output "Service Path: $servicePath"
 			Write-Output "Insecure ACL for Service: $serviceName" | Out-File -Append $insecureFile
 			Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
 			$permissions_service | Out-File -Append $insecureFile
@@ -122,7 +122,7 @@ foreach ($service in $services) {
 	}	
 }
 Write-Output ""
-Write-Host "Insecure ACL for Executables:" -ForegroundColor Yellow
+Write-Output "Insecure ACL for Executables:"
 Write-Output $servicePathList 
 
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
@@ -148,7 +148,13 @@ Write-Output "[+] Total number of services: $numServices"
 Write-Output "[+] Checking services..."
 
 # Define the identities you're looking for
-$identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users", $env:USERNAME)
+$identities = @("NT AUTHORITY\INTERACTIVE", 
+	"Everyone", 
+	"BUILTIN\Users", 
+	"BUILTIN\Usuarios", 
+	"NT AUTHORITY\Authenticated Users", 
+	$env:USERNAME
+)
 
 # Loop through each service and identity
 foreach ($service in $services) {
@@ -164,7 +170,7 @@ foreach ($service in $services) {
 			Write-Output "Insecure Service Found: $service" | Out-File -Append $insecureFile
 			Write-Output "Identity: $identity" | Out-File -Append $insecureFile
 			$accesschkOutput | Out-File -Append $insecureFile
-			Write-Host "Insecure Service Found: $service" -ForegroundColor Red
+			Write-Output "Insecure Service Found: $service"
 			Write-Output "---------------------------------" | Out-File -Append $insecureFile
 		}
 	}
@@ -196,12 +202,14 @@ foreach ($service in $services) {
 	Write-Output "---------------------------------" | Out-File -Append $outputFile
 	
 	# Check if the path contains spaces and is not quoted
-	if ($servicePath -notmatch '^"' -and $servicePath -match '\s' -and $servicePath -notmatch "svchost.exe|msiexec.exe|dllhost.exe|SearchIndexer.exe") {
+	if ($servicePath -notmatch '^"' -and 
+		$servicePath -match '\s' -and 
+		$servicePath -notmatch "svchost.exe|msiexec.exe|dllhost.exe|SearchIndexer.exe") {
 		# Log the unquoted path
 		Write-Output "[*] :::Unquoted Service Path (T1574.009):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Unquoted path found for service: $serviceName" | Out-File -Append $insecureFile
-		Write-Host "Unquoted path found for service: $serviceName" -ForegroundColor Red
+		Write-Output "Unquoted path found for service: $serviceName"
 		Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
 		$serviceConfig | Out-File -Append $insecureFile
 		Write-Output "---------------------------------" | Out-File -Append $insecureFile
@@ -214,23 +222,23 @@ Write-Output "[+] Check Completed. Results saved in $insecureFile"
 # :::: Installed Applications ::::
 
 Write-Output ""
-Write-Output "::::::::::Installed Applications::::::::::"
+Write-Output ":::::::::: Installed Applications ::::::::::"
 Write-Output ""
 
-# Get all installed applications 32/64bit
+# Get all installed applications (32-bit & 64-bit)
 Write-Output "[+] Checking non-Microsoft Applications..."
-$32bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
-$64bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname
-$AllAplications = $32bitApplications + $64bitApplications
+$32bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue | Select-Object DisplayName
+$64bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue | Select-Object DisplayName
 
-# Filter out Microsft Applications
-$NonMicrosoftApps = $AllAplications | Where-Object { $_.DisplayName -and $_.DisplayName -notmatch "Microsoft" -and $_.DisplayName -notmatch "Windows"}
+# Combine results and filter out Microsoft/Windows applications
+$AllApplications = $32bitApplications + $64bitApplications
+$NonMicrosoftApps = $AllApplications | Where-Object { $_.DisplayName -and $_.DisplayName -notmatch "Microsoft|Windows" }
 $TotalNonMicrosoftApps = $NonMicrosoftApps.Count
 
-Write-Host "[+] Total number of Non-Microsft Applications: $TotalNonMicrosoftApps" -ForegroundColor Yellow
+Write-Output "[+] Total number of Non-Microsoft Applications: $TotalNonMicrosoftApps"
 Write-Output $NonMicrosoftApps 
-Write-Output "[*] :::Installed Applications:::" | Out-File -Append $insecureFile
-Write-Output $NonMicrosoftApps | Out-File -Append $insecureFile
+Write-Output "[*] ::: Installed Applications :::" | Out-File -Append $insecureFile
+$NonMicrosoftApps | Out-File -Append $insecureFile
 Write-Output "---------------------------------" | Out-File -Append $insecureFile
 Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
@@ -260,7 +268,7 @@ foreach ($task in $taskNames) {
 	if ($taskToRun -match ".exe|.ps1|.bat|.vbs|.cmd|.js|.wsf|.msi|.msp|.scr" -and $taskToRun -notmatch "system32|sdxhelper.exe|OfficeC2RClient.exe|MpCmdRun.exe|BthUdTask.exe|config upnphost" -and $taskState -notmatch "Disabled|Deshabilitado" -and $taskRunAs -match "SYSTEM") {
 		Write-Output "[*] :::Schedule Tasks (T1053.005):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
-		Write-Host "TaskName: $taskName" -ForegroundColor Red
+		Write-Output "TaskName: $taskName"
 		Write-Output "TaskName: $taskName" | Out-File -Append $insecureFile
 		Write-Output "Task To Run: $taskToRun" | Out-File -Append $insecureFile
 		Write-Output "Run As User: $taskRunAs" | Out-File -Append $insecureFile
@@ -318,7 +326,7 @@ foreach ($dir in $folderList) {
 				Write-Output "[*] :::Possible Schedule Task Scripts (T1053.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
-				Write-Host "Insecure ACL for: $filePath" -ForegroundColor Red
+				Write-Output "Insecure ACL for: $filePath"
 				$permissions | Out-File -Append $insecureFile
 				Write-Output "---------------------------------" | Out-File -Append $insecureFile
 			}
@@ -358,7 +366,7 @@ foreach ($path in $paths) {
 		Write-Output "[*] :::Weak Registry permission (T1574.011):::" | Out-File -Append $insecureFile
 		Write-Output "" | Out-File -Append $insecureFile
 		Write-Output "Weak Registry permission found: $cleanPath" | Out-File -Append $insecureFile 
-		Write-Host "Weak Registry permission found: $cleanPath" -ForegroundColor Red
+		Write-Output "Weak Registry permission found: $cleanPath"
 		Write-Output $regQuery | Out-File -Append $insecureFile
 		Write-Output $match | Out-File -Append $insecureFile
 
@@ -406,7 +414,7 @@ foreach ($regKey in $registryKeys) {
 					Write-Output "Found Executable with weak ACL: $cleanPath" | Out-File -Append $insecureFile
 					$permissions | Out-File -Append $insecureFile
 					Write-Output "[+] Checking: $regKey"
-					Write-Host "Found Executable with weak ACL: $cleanPath" -ForegroundColor Red
+					Write-Output "Found Executable with weak ACL: $cleanPath"
 				}
 			}
 		}
@@ -435,8 +443,29 @@ foreach ($Path in $RegPaths) {
 	if (Test-Path $Path) {
 		$Value = Get-ItemProperty -Path $Path -Name "AlwaysInstallElevated" -ErrorAction SilentlyContinue
 		if ($Value.AlwaysInstallElevated -eq 1) {
-			Write-Host "Found: $Path\AlwaysInstallElevated is ENABLED (1)" -ForegroundColor Red
+			Write-Output "Found: $Path\AlwaysInstallElevated is ENABLED (1)"
 			Write-Output "Found: $Path\AlwaysInstallElevated is ENABLED (1)" | Out-File -Append $insecureFile
 		} 
 	}
 }
+Write-Output "[+] Check Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: Logon Autostart Execution Startup Folder ::::
+
+Write-Output ""
+Write-Output "::::::::::Boot or Logon Autostart Execution: Startup Folder (T1547.001)::::::::::"
+Write-Output ""
+
+# Get all installed applications (32-bit & 64-bit)
+$startUpFolder = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
+$permissions = icacls $startUpFolder 2>$null
+
+if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
+	Write-Output "[*] :::Boot or Logon Autostart Execution: Startup Folder (T1547.001):::" | Out-File -Append $insecureFile
+	Write-Output "" | Out-File -Append $insecureFile
+	Write-Output "Global StartUp Folder with weak ACL: $startUpFolder" | Out-File -Append $insecureFile
+	$permissions | Out-File -Append $insecureFile
+	Write-Output "Global StartUp Folder with weak ACL: $startUpFolder"
+}
+Write-Output "[+] Check Completed. Results saved in $insecureFile"
