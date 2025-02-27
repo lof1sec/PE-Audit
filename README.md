@@ -12,6 +12,8 @@ Checks available... at the moment
 - **Registry AutoRun Keys** (*Mitre T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys*)
 - **Autostart Execution Startup Folder** (*Mitre T1547.001 - Boot or Logon Autostart Execution: Startup Folder*)
 - **AlwaysInstallElevated**
+- **Stored Credentials**
+- **Windows Registry Hives Backups**
 
 ## How to use:
 - Put `PE-Audit.ps1` and `accesschk.exe` in the same folder (ensure you have write permissions for the folder), and that's it!
