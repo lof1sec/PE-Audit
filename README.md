@@ -10,6 +10,7 @@ Checks available... at the moment
 - **Scheduled Task** (*Mitre T1053.005 - Scheduled Task/Job: Scheduled Task*)
 - **Weak Registry permission** (*Mitre T1574.011 - Hijack Execution Flow: Services Registry Permissions Weakness*)
 - **Registry AutoRun Keys** (*Mitre T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys*)
+- **Autostart Execution Startup Folder** (*Mitre T1547.001 - Boot or Logon Autostart Execution: Startup Folder*)
 - **AlwaysInstallElevated**
 
 ## How to use:
