@@ -469,3 +469,46 @@ if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usu
 	Write-Output "Global StartUp Folder with weak ACL: $startUpFolder"
 }
 Write-Output "[+] Check Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: Stored Credentials ::::
+
+Write-Output ""
+Write-Output "::::::::::Stored Credentials::::::::::"
+Write-Output ""
+
+# Check for stored credentials
+$storedCreds = cmdkey.exe /list 2>$null
+$onlyUsers = cmdkey.exe /list | Select-String "User:|Usuario:" | ForEach-Object { ($_ -split ":")[1].Trim() } | Sort-Object -Unique 2>$null
+
+if ($storedCreds -match "User:|Usuario:") {
+    Write-Output "[*] :::Stored Credentials:::" | Out-File -Append $insecureFile
+    Write-Output "" | Out-File -Append $insecureFile
+    Write-Output "Stored credentials for users: " | Out-File -Append $insecureFile
+    $onlyUsers | Out-File -Append $insecureFile
+    $storedCreds | Out-File -Append $insecureFile
+    Write-Output "Stored credentials for users:"
+    Write-Output $onlyUsers
+}
+Write-Output "[+] Check Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: Windows Registry Hives Backups ::::
+
+Write-Output ""
+Write-Output "::::::::::Windows Registry Hives Backups::::::::::"
+Write-Output ""
+
+# Check if any backups for sam/system
+$hivesBackupPath = "C:\Windows\Repair\"
+
+if (Test-Path $hivesBackupPath) {
+    $contentBackup = Get-ChildItem C:\Windows\Repair | Format-Table Name,Length,LastWriteTime -AutoSize
+    Write-Output "[*] :::Windows Registry Hives Backups:::" | Out-File -Append $insecureFile
+    Write-Output "" | Out-File -Append $insecureFile
+    Write-Output "Backup folder: $hivesBackupPath" | Out-File -Append $insecureFile
+    $contentBackup | Out-File -Append $insecureFile
+    Write-Output "Backup folder: $hivesBackupPath"
+    Write-Output $contentBackup
+}
+Write-Output "[+] Check Completed. Results saved in $insecureFile"
