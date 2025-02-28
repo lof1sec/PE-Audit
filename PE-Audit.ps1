@@ -93,6 +93,7 @@ foreach ($dir in $directories) {
 	}
 }
 
+
 # Get all service names
 $services = Get-WmiObject -Class Win32_Service
 
@@ -501,9 +502,18 @@ Write-Output ""
 
 # Check if any backups for sam/system
 $hivesBackupPath = "C:\Windows\Repair\"
+$oldBackupPath = "C:\Windows.old\Windows\System32\"
 
 if (Test-Path $hivesBackupPath) {
-    $contentBackup = Get-ChildItem C:\Windows\Repair | Format-Table Name,Length,LastWriteTime -AutoSize
+    $contentBackup = Get-ChildItem $hivesBackupPath | Format-Table Name,Length,LastWriteTime -AutoSize
+    Write-Output "[*] :::Windows Registry Hives Backups:::" | Out-File -Append $insecureFile
+    Write-Output "" | Out-File -Append $insecureFile
+    Write-Output "Backup folder: $hivesBackupPath" | Out-File -Append $insecureFile
+    $contentBackup | Out-File -Append $insecureFile
+    Write-Output "Backup folder: $hivesBackupPath"
+    Write-Output $contentBackup
+} elseif (Test-Path $oldBackupPath) {
+	$contentBackup = Get-ChildItem $oldBackupPath | Format-Table Name,Length,LastWriteTime -AutoSize
     Write-Output "[*] :::Windows Registry Hives Backups:::" | Out-File -Append $insecureFile
     Write-Output "" | Out-File -Append $insecureFile
     Write-Output "Backup folder: $hivesBackupPath" | Out-File -Append $insecureFile
@@ -512,3 +522,66 @@ if (Test-Path $hivesBackupPath) {
     Write-Output $contentBackup
 }
 Write-Output "[+] Check Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: weak acl for dll ::::
+
+Write-Output ""
+Write-Output "::::::::::Weak ACL for DLL::::::::::"
+Write-Output ""
+# Define folders to exclude
+$excludedFolders = @("Windows")
+
+# Initialize an empty list
+$folderList = @()
+
+# Get all drives that support filesystems
+$drives = Get-PSDrive -PSProvider FileSystem
+
+# Iterate through each drive and add root directory names to the list
+foreach ($drive in $drives) {
+	$driveLetter = $drive.Root
+
+	# Store as a list
+	Get-ChildItem -Path $driveLetter -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin $excludedFolders } | ForEach-Object { $folderList += "$driveLetter$($_.Name)" }
+}
+
+$folderList += "C:\Windows\Temp\"
+
+
+# Iterate through each rootfolder and get weak acl for dll
+foreach ($dir in $folderList) {
+	if (Test-Path $dir) {
+		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
+		Write-Output "[+] Scanning $dir ..."
+		
+		# Get all .dll files
+		$files = Get-ChildItem -Path $dir -Recurse -Include "*.dll" -File -ErrorAction SilentlyContinue
+
+		foreach ($file in $files) {
+			$filePath = $file.FullName
+			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
+			
+			# Get the icacls output
+			$permissions = icacls $filePath 2>$null
+			
+			# Save all results
+			$permissions | Out-File -Append $outputFile
+			Write-Output "---------------------------------" | Out-File -Append $outputFile
+			
+			
+
+			# Check for insecure permissions
+			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])" ) {
+				Write-Output "[*] :::Weak ACL for DLL:::" | Out-File -Append $insecureFile
+				Write-Output "" | Out-File -Append $insecureFile
+				Write-Output "Insecure ACL for DLL: $filePath" | Out-File -Append $insecureFile
+				Write-Output "Insecure ACL for DLL: $filePath"
+				$permissions | Out-File -Append $insecureFile
+				Write-Output "---------------------------------" | Out-File -Append $insecureFile
+			}
+		}
+		
+	}
+}
+Write-Output "[+] Scan Completed. Results saved in $insecureFile"
