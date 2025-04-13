@@ -588,6 +588,9 @@ Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: WEBSHELL ::::
+Write-Output ""
+Write-Output "::::::::::Server Software Component: Web Shell (T1505.003)::::::::::"
+Write-Output ""
 
 $directories = @(
     "C:\xampp\htdocs",
