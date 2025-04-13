@@ -14,7 +14,7 @@ Checks available... at the moment
 - **AlwaysInstallElevated**
 - **Stored Credentials**
 - **Windows Registry Hives Backups**
-- **Web Shell location (*Mitre T1505.003 - Server Software Component: Web Shell)**
+- **Web Shell location** (*Mitre T1505.003 - Server Software Component: Web Shell*)
 
 ## How to use:
 - Put `PE-Audit.ps1` and `accesschk.exe` in the same folder (ensure you have write permissions for the folder), and that's it!
