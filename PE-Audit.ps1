@@ -600,7 +600,7 @@ $directories = @(
 
 foreach ($dir in $directories) {
     if (Test-Path $dir) {
-        Write-Output "`n--- Checking: $dir ---"
+        Write-Output "`nChecking: $dir"
         $output = icacls $dir
 
         if ($output -match "(BUILTIN\\Users:.+[FMW])|(Everyone:.+[FMW])|(BUILTIN\\Usuarios:.+[FMW])|(Authenticated Users:.+[FMW])|(NT AUTHORITY\\INTERACTIVE:.+[FMW])") {
