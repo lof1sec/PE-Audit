@@ -585,3 +585,28 @@ foreach ($dir in $folderList) {
 	}
 }
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
+
+# ------------------------------------------------------------------------ #
+# :::: WEBSHELL ::::
+
+$directories = @(
+    "C:\xampp\htdocs",
+    "C:\wamp64\www",
+    "C:\inetpub\wwwroot"
+)
+
+foreach ($dir in $directories) {
+    if (Test-Path $dir) {
+        Write-Output "`n--- Checking: $dir ---"
+        $output = icacls $dir
+
+        if ($output -match "(BUILTIN\\Users:.+[FMW])|(Everyone:.+[FMW])|(BUILTIN\\Usuarios:.+[FMW])|(Authenticated Users:.+[FMW])|(NT AUTHORITY\\INTERACTIVE:.+[FMW])") {
+            Write-Output "[*] :::Server Software Component: Web Shell (T1505.003):::" | Out-File -Append $insecureFile
+            Write-Output "[*] :::Server Software Component: Web Shell (T1505.003):::"
+            Write-Output "Can write webshell in: $dir"
+            Write-Output "Can write webshell in: $dir" | Out-File -Append $insecureFile
+            $output | Out-File -Append $insecureFile
+            Write-Output "---------------------------------" | Out-File -Append $insecureFile
+        } 
+    } 
+}
