@@ -595,6 +595,7 @@ Write-Output ""
 $directories = @(
     "C:\xampp\htdocs",
     "C:\wamp64\www",
+    "C:\wamp\www",
     "C:\inetpub\wwwroot"
 )
 
