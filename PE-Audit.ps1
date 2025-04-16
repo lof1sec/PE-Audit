@@ -45,88 +45,50 @@ foreach ($privilege in $riskyPrivileges) {
 	}
 }
 
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # ------------------------------------------------------------------------ #
-# :::: Modifiable Service Binaries ::::
+# :::: Service Executables ACL Check (T1574.005) ::::
 
-# Initialize an empty list
-$servicePathList = @()
-
-# Define the directories to search
-#$directories = @("C:\Program Files (x86)","$env:ProgramFiles","$env:USERPROFILE\Downloads")
-$directories = @("C:\Program Files (x86)","$env:ProgramFiles")
 Write-Output ""
-Write-Output "::::::::::Permissive File System ACLs (T1574.005)::::::::::"
+Write-Output "::::::::::Service Executables with Permissive ACLs (T1574.005)::::::::::"
 Write-Output ""
-Write-Output "[+] Checking Directories: $directories"
-Write-Output "[*] Checking for :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $outputFile
+Write-Output "[*] Checking services and their binaries for insecure permissions..." | Out-File -Append $outputFile
 
-# Search for .exe files and check permissions
-foreach ($dir in $directories) {
-	if (Test-Path $dir) {
-		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
-		Write-Output "[+] Scanning $dir ..."
-		# Get all .exe files
-		$files = Get-ChildItem -Path $dir -Recurse -Include "*.exe" -File -ErrorAction SilentlyContinue
+# Regex for insecure permissions
+$insecureAclRegex = "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])"
 
-		foreach ($file in $files) {
-			$filePath = $file.FullName
-			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
-			
-			# Get the icacls and sc output
-			$permissions = icacls $filePath 2>$null
+# Get all services
+$services = Get-CimInstance -ClassName Win32_Service
 
-			# Save all results
-			$permissions | Out-File -Append $outputFile
-			Write-Output "---------------------------------" | Out-File -Append $outputFile
-			
-			# Check for insecure permissions
-			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
-				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
-				Write-Output "" | Out-File -Append $insecureFile
-				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
-				$permissions | Out-File -Append $insecureFile
-				$servicePathList += $filePath
-				Write-Output "---------------------------------" | Out-File -Append $insecureFile
-			}
-		}
-	}
-}
-
-
-# Get all service names
-$services = Get-WmiObject -Class Win32_Service
-
-# Loop through each service
 foreach ($service in $services) {
-	$serviceName = $service.Name
-	$servicePath = $service.PathName
-	# Check if the path contains spaces and is not quoted
-	$permissions_service = sc.exe qc $serviceName 2>$null
-	foreach ($singlePath in $servicePathList) {
-		# Escape file path for regex
-		$safePath = [regex]::Escape($singlePath)
+    $serviceName = $service.Name
+    $displayName = $service.DisplayName
+    $pathRaw = $service.PathName
 
-		if ($permissions_service -match $safePath) {
-			# Log the unquoted path
-			Write-Output "[*] Checking for Service :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
-			Write-Output "" | Out-File -Append $insecureFile
-			Write-Output "Insecure ACL for Service: $serviceName"
-			Write-Output "Service Path: $servicePath"
-			Write-Output "Insecure ACL for Service: $serviceName" | Out-File -Append $insecureFile
-			Write-Output "Service Path: $servicePath" | Out-File -Append $insecureFile
-			$permissions_service | Out-File -Append $insecureFile
-			$permissions = icacls $singlePath 2>$null
-			$permissions | Out-File -Append $insecureFile
-			Write-Output "---------------------------------" | Out-File -Append $insecureFile
-		}
-	}	
+    if (![string]::IsNullOrWhiteSpace($pathRaw)) {
+        # Clean up quoted paths and arguments (e.g., "C:\Path\to\binary.exe" -arg1)
+        $exePath = $pathRaw -replace '^\"?(.+?\.exe)\"?.*$', '$1'
+
+        if (Test-Path $exePath) {
+            Write-Output "Checking: $exePath (Service: $serviceName)" | Out-File -Append $outputFile
+
+            $permissions = icacls $exePath 2>$null
+            $permissions | Out-File -Append $outputFile
+            Write-Output "---------------------------------" | Out-File -Append $outputFile
+
+            if ($permissions -match $insecureAclRegex) {
+                Write-Output "Insecure ACL found for: $exePath (Service: $serviceName)"
+                Write-Output "[*] :::Permissive Service Executable ACL (T1574.005):::" | Out-File -Append $insecureFile
+                Write-Output "" | Out-File -Append $insecureFile
+                Write-Output "Service Name: $serviceName" | Out-File -Append $insecureFile
+                Write-Output "Display Name: $displayName" | Out-File -Append $insecureFile
+                Write-Output "Executable Path: $exePath" | Out-File -Append $insecureFile
+                $permissions | Out-File -Append $insecureFile
+                Write-Output "---------------------------------" | Out-File -Append $insecureFile
+            }
+        }
+    }
 }
-Write-Output ""
-Write-Output "Insecure ACL for Executables:"
-Write-Output $servicePathList 
 
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Modifiable Services ::::
@@ -145,8 +107,6 @@ if (!(Test-Path $accesschkPath)) {
 # Get all service names
 $services = Get-Service | Select-Object -ExpandProperty Name
 $numServices = $services.Count
-Write-Output "[+] Total number of services: $numServices"
-Write-Output "[+] Checking services..."
 
 # Define the identities you're looking for
 $identities = @("NT AUTHORITY\INTERACTIVE", 
@@ -177,8 +137,6 @@ foreach ($service in $services) {
 	}
 }
 
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
-
 # ------------------------------------------------------------------------ #
 # :::: Unquoted Service Path ::::
 
@@ -189,8 +147,6 @@ Write-Output ""
 # Get all services
 $services = Get-WmiObject -Class Win32_Service
 $numServices = $services.Count
-Write-Output "[+] Total number of services: $numServices"
-Write-Output "[+] Checking services..."
 
 # Loop through each service
 foreach ($service in $services) {
@@ -217,8 +173,6 @@ foreach ($service in $services) {
 	}
 }
 
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
-
 # ------------------------------------------------------------------------ #
 # :::: Installed Applications ::::
 
@@ -227,7 +181,6 @@ Write-Output ":::::::::: Installed Applications ::::::::::"
 Write-Output ""
 
 # Get all installed applications (32-bit & 64-bit)
-Write-Output "[+] Checking non-Microsoft Applications..."
 $32bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue | Select-Object DisplayName
 $64bitApplications = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" -ErrorAction SilentlyContinue | Select-Object DisplayName
 
@@ -241,7 +194,6 @@ Write-Output $NonMicrosoftApps
 Write-Output "[*] ::: Installed Applications :::" | Out-File -Append $insecureFile
 $NonMicrosoftApps | Out-File -Append $insecureFile
 Write-Output "---------------------------------" | Out-File -Append $insecureFile
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Schedule Tasks ::::
@@ -307,7 +259,7 @@ foreach ($dir in $folderList) {
 		Write-Output "[+] Scanning $dir ..."
 		
 		# Get all .exe and .dll files
-		$files = Get-ChildItem -Path $dir -Recurse -Include ("*.exe","*.ps1","*.bat","*.vbs","*.cmd", "*.js", "*.wsf", "*.msi", "*.msp", "*.scr") -File -ErrorAction SilentlyContinue
+		$files = Get-ChildItem -Path $dir -Recurse -Include ("*.exe","*.ps1","*.bat","*.vbs","*.cmd","*.wsf","*.msi","*.msp","*.scr") -File -ErrorAction SilentlyContinue
 
 		foreach ($file in $files) {
 			$filePath = $file.FullName
@@ -335,7 +287,6 @@ foreach ($dir in $folderList) {
 		
 	}
 }
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 # ------------------------------------------------------------------------ #
 # :::: Weak Registry permission ::::
 
@@ -345,7 +296,6 @@ Write-Output ""
 
 # Get all registry paths under Services
 $paths = Get-ChildItem -Path "HKLM:\SYSTEM\CurrentControlSet\Services\" | ForEach-Object { $_.PSPath }
-Write-Output '[+] Scanning "HKLM:\SYSTEM\CurrentControlSet\Services\"'
 
 # Define the identities you're looking for
 $identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users", $env:USERNAME)
@@ -373,7 +323,6 @@ foreach ($path in $paths) {
 
 	}
 }
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Logon Autostart Execution Registry Run Keys ::::
@@ -424,8 +373,6 @@ foreach ($regKey in $registryKeys) {
 	}
 }
 
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
-
 # ------------------------------------------------------------------------ #
 # :::: AlwaysInstallElevated ::::
 
@@ -449,7 +396,6 @@ foreach ($Path in $RegPaths) {
 		} 
 	}
 }
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Logon Autostart Execution Startup Folder ::::
@@ -469,7 +415,6 @@ if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usu
 	$permissions | Out-File -Append $insecureFile
 	Write-Output "Global StartUp Folder with weak ACL: $startUpFolder"
 }
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Stored Credentials ::::
@@ -491,7 +436,6 @@ if ($storedCreds -match "User:|Usuario:") {
     Write-Output "Stored credentials for users:"
     Write-Output $onlyUsers
 }
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: Windows Registry Hives Backups ::::
@@ -521,7 +465,6 @@ if (Test-Path $hivesBackupPath) {
     Write-Output "Backup folder: $hivesBackupPath"
     Write-Output $contentBackup
 }
-Write-Output "[+] Check Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: weak acl for dll ::::
@@ -584,7 +527,6 @@ foreach ($dir in $folderList) {
 		
 	}
 }
-Write-Output "[+] Scan Completed. Results saved in $insecureFile"
 
 # ------------------------------------------------------------------------ #
 # :::: WEBSHELL ::::
@@ -613,3 +555,4 @@ foreach ($dir in $directories) {
         } 
     } 
 }
+Write-Output "[+] Scan Completed. Results saved in $insecureFile"
