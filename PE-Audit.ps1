@@ -114,7 +114,7 @@ $identities = @("NT AUTHORITY\INTERACTIVE",
 	"BUILTIN\Users", 
 	"BUILTIN\Usuarios", 
 	"NT AUTHORITY\Authenticated Users", 
-	$env:USERNAME
+	$($env:USERDOMAIN)"\"$($env:USERNAME)
 )
 
 # Loop through each service and identity
@@ -275,7 +275,7 @@ foreach ($dir in $folderList) {
 			
 
 			# Check for insecure permissions
-			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])" ) {
+			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])" ) {
 				Write-Output "[*] :::Possible Schedule Task Scripts (T1053.005):::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
@@ -298,7 +298,7 @@ Write-Output ""
 $paths = Get-ChildItem -Path "HKLM:\SYSTEM\CurrentControlSet\Services\" | ForEach-Object { $_.PSPath }
 
 # Define the identities you're looking for
-$identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users", $env:USERNAME)
+$identities = @("NT AUTHORITY\INTERACTIVE", "Everyone", "BUILTIN\Users", "BUILTIN\Usuarios", "NT AUTHORITY\Authenticated Users", $($env:USERNAME))
 
 # Loop through each path and get detailed ACL info
 foreach ($path in $paths) {
@@ -357,7 +357,7 @@ foreach ($regKey in $registryKeys) {
 				$permissions = icacls $cleanPath 2>$null
 				
 				# Check if the file exists
-				if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
+				if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])") {
 					Write-Output "[*] :::Boot or Logon Autostart Execution: Registry Run Keys (T1547.001):::" | Out-File -Append $insecureFile
 					Write-Output "" | Out-File -Append $insecureFile
 					Write-Output "[+] Checking: $regKey" | Out-File -Append $insecureFile
@@ -408,7 +408,7 @@ Write-Output ""
 $startUpFolder = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
 $permissions = icacls $startUpFolder 2>$null
 
-if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])") {
+if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])") {
 	Write-Output "[*] :::Boot or Logon Autostart Execution: Startup Folder (T1547.001):::" | Out-File -Append $insecureFile
 	Write-Output "" | Out-File -Append $insecureFile
 	Write-Output "Global StartUp Folder with weak ACL: $startUpFolder" | Out-File -Append $insecureFile
@@ -515,7 +515,7 @@ foreach ($dir in $folderList) {
 			
 
 			# Check for insecure permissions
-			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])" ) {
+			if ($permissions -match "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])" ) {
 				Write-Output "[*] :::Weak ACL for DLL:::" | Out-File -Append $insecureFile
 				Write-Output "" | Out-File -Append $insecureFile
 				Write-Output "Insecure ACL for DLL: $filePath" | Out-File -Append $insecureFile
@@ -546,7 +546,7 @@ foreach ($dir in $directories) {
         Write-Output "`nChecking: $dir"
         $output = icacls $dir
 
-        if ($output -match "(BUILTIN\\Users:.+[FMW])|(Everyone:.+[FMW])|(BUILTIN\\Usuarios:.+[FMW])|(Authenticated Users:.+[FMW])|(NT AUTHORITY\\INTERACTIVE:.+[FMW])") {
+        if ($output -match "(BUILTIN\\Users:.+[FMW])|(Everyone:.+[FMW])|(BUILTIN\\Usuarios:.+[FMW])|(Authenticated Users:.+[FMW])|(NT AUTHORITY\\INTERACTIVE:.+[FMW])|($($env:USERNAME):.+[FMW])") {
             Write-Output "[*] :::Server Software Component: Web Shell (T1505.003):::" | Out-File -Append $insecureFile
             Write-Output "Writable folder: $dir"
             Write-Output "Writable folder: $dir" | Out-File -Append $insecureFile
