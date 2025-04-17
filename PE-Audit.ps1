@@ -114,7 +114,7 @@ $identities = @("NT AUTHORITY\INTERACTIVE",
 	"BUILTIN\Users", 
 	"BUILTIN\Usuarios", 
 	"NT AUTHORITY\Authenticated Users", 
-	$($env:USERDOMAIN)"\"$($env:USERNAME)
+	$($env:USERNAME)
 )
 
 # Loop through each service and identity
