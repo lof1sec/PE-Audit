@@ -54,7 +54,7 @@ Write-Output ""
 Write-Output "[*] Checking services and their binaries for insecure permissions..." | Out-File -Append $outputFile
 
 # Regex for insecure permissions
-$insecureAclRegex = "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])"
+$insecureAclRegex = "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])"
 
 # Get all services
 $services = Get-CimInstance -ClassName Win32_Service
