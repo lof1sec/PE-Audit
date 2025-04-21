@@ -89,6 +89,40 @@ foreach ($service in $services) {
     }
 }
 
+# Search for .exe files and check permissions
+$directories = @("C:\Program Files (x86)","$env:ProgramFiles")
+# Regex for insecure permissions
+$insecureAclRegex = "(BUILTIN\\Users:.+[FM])|(Everyone:.+[FM])|(BUILTIN\\Usuarios:.+[FM])|(Authenticated Users:.+[FM])|(NT AUTHORITY\\INTERACTIVE:.+[FM])|($($env:USERNAME):.+[FM])"
+foreach ($dir in $directories) {
+	if (Test-Path $dir) {
+		Write-Output "Scanning $dir ..." | Out-File -Append $outputFile
+		# Get all .exe files
+		$files = Get-ChildItem -Path $dir -Recurse -Force -Include "*.exe" -File -ErrorAction SilentlyContinue
+
+		foreach ($file in $files) {
+			$filePath = $file.FullName
+			Write-Output "Checking: $filePath" | Out-File -Append $outputFile
+			
+			# Get the icacls and sc output
+			$permissions = icacls $filePath 2>$null
+
+			# Save all results
+			$permissions | Out-File -Append $outputFile
+			Write-Output "---------------------------------" | Out-File -Append $outputFile
+			
+			# Check for insecure permissions
+			if ($permissions -match $insecureAclRegex) {
+				Write-Output "[*] :::Permissive File System ACLs (T1574.005):::" | Out-File -Append $insecureFile
+				Write-Output "" | Out-File -Append $insecureFile
+				Write-Output "Insecure ACL for: $filePath"
+				Write-Output "Insecure ACL for: $filePath" | Out-File -Append $insecureFile
+				$permissions | Out-File -Append $insecureFile
+				Write-Output "---------------------------------" | Out-File -Append $insecureFile
+			}
+		}
+	}
+}
+
 
 # ------------------------------------------------------------------------ #
 # :::: Modifiable Services ::::
@@ -249,7 +283,7 @@ foreach ($drive in $drives) {
 	$driveLetter = $drive.Root
 
 	# Store as a list
-	Get-ChildItem -Path $driveLetter -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin $excludedFolders } | ForEach-Object { $folderList += "$driveLetter$($_.Name)" }
+	Get-ChildItem -Path $driveLetter -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin $excludedFolders } | ForEach-Object { $folderList += "$driveLetter$($_.Name)" }
 }
 
 # Iterate through each rootfolder and get script/executable files
@@ -259,7 +293,7 @@ foreach ($dir in $folderList) {
 		Write-Output "[+] Scanning $dir ..."
 		
 		# Get all .exe and .dll files
-		$files = Get-ChildItem -Path $dir -Recurse -Include ("*.exe","*.ps1","*.bat","*.vbs","*.cmd","*.wsf","*.msi","*.msp","*.scr") -File -ErrorAction SilentlyContinue
+		$files = Get-ChildItem -Path $dir -Recurse -Force -Include ("*.exe","*.ps1","*.bat","*.vbs","*.cmd","*.wsf","*.msi","*.msp","*.scr") -File -ErrorAction SilentlyContinue
 
 		foreach ($file in $files) {
 			$filePath = $file.FullName
@@ -486,7 +520,7 @@ foreach ($drive in $drives) {
 	$driveLetter = $drive.Root
 
 	# Store as a list
-	Get-ChildItem -Path $driveLetter -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin $excludedFolders } | ForEach-Object { $folderList += "$driveLetter$($_.Name)" }
+	Get-ChildItem -Path $driveLetter -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -notin $excludedFolders } | ForEach-Object { $folderList += "$driveLetter$($_.Name)" }
 }
 
 $folderList += "C:\Windows\Temp\"
@@ -499,7 +533,7 @@ foreach ($dir in $folderList) {
 		Write-Output "[+] Scanning $dir ..."
 		
 		# Get all .dll files
-		$files = Get-ChildItem -Path $dir -Recurse -Include "*.dll" -File -ErrorAction SilentlyContinue
+		$files = Get-ChildItem -Path $dir -Recurse -Force -Include "*.dll" -File -ErrorAction SilentlyContinue
 
 		foreach ($file in $files) {
 			$filePath = $file.FullName
