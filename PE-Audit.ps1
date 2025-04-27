@@ -589,4 +589,17 @@ foreach ($dir in $directories) {
         } 
     } 
 }
+
+# ------------------------------------------------------------------------ #
+# :::: Network Connections ::::
+Write-Output ""
+Write-Output "::::::::::Active Network Connections::::::::::"
+Write-Output ""
+
+$connections = netstat -ano | findstr LISTENING | Where-Object { $_ -notmatch '\[\:\:\]' }
+Write-Output "[*] :::Active Network Connections:::" | Out-File -Append $insecureFile
+$connections | Out-File -Append $insecureFile
+Write-Output $connections
+Write-Output ""
+
 Write-Output "[+] Scan Completed. Results saved in $insecureFile"
