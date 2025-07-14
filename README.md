@@ -17,7 +17,7 @@ Checks available... at the moment
 - **Web Shell location** (*Mitre T1505.003 - Server Software Component: Web Shell*)
 
 ## How to use:
-- Put `PE-Audit.ps1`
+- `PE-Audit.ps1`
 
 ```
 PS C:\Users\thm-unpriv> .\PE-Audit.ps1
