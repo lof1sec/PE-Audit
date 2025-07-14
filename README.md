@@ -19,7 +19,7 @@ Checks available... at the moment
 ## How to use:
 - `PE-Audit.ps1`
 
-```
+```powershell
 PS C:\Users\thm-unpriv> .\PE-Audit.ps1
 
 ::::: PE-Audit: Windows Privilege Escalation Checker :::::
@@ -99,7 +99,6 @@ Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\WSProc.dll
 [*] :::Passwords: Web Config file:::
 
 Possible password in file: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
-Possible password in file: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
 
 [*] :::PowerShell History File:::
 
@@ -123,4 +122,5 @@ Powershell History File in: C:\users\thm-unpriv\AppData\Roaming\Microsoft\Window
   TCP    0.0.0.0:49671          0.0.0.0:0              LISTENING       612
   TCP    0.0.0.0:49675          0.0.0.0:0              LISTENING       636
   TCP    10.10.235.204:139      0.0.0.0:0              LISTENING       4
+[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
 ```
