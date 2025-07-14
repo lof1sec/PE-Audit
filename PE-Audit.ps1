@@ -698,6 +698,27 @@ function web_config_password {
     }
 }
 
+function PowerShell_history_file {
+    $go = $false
+    foreach ($user in ((ls C:\users).fullname)){
+        if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
+         $go = $true
+         break
+         }
+    }
+    if ($go) {
+        Write-Output "`n[*] :::PowerShell History File:::`n"
+        Write-Output "`n[*] :::PowerShell History File:::`n" | Out-File -Append $insecureFile
+        foreach ($user in ((ls C:\users).fullname)){
+            if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
+             Write-Host "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
+             "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt`n" | Out-File -Append $insecureFile
+             cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue 2>$null | Out-File -Append $insecureFile
+             Write-Output "---------------------------------`n" | Out-File -Append $insecureFile
+             }
+        }
+    }
+}
 
 # Control Flow
 
@@ -716,5 +737,6 @@ Stored_creds
 Registry_hives_bkp
 Weak_acl_for_dll
 Webshell
-Network_Connections
 web_config_password
+PowerShell_history_file
+Network_Connections
