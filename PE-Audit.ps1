@@ -7,6 +7,7 @@ Write-Output "[+] Windows Version: $($windowsVersion.caption) $($windowsVersion.
 
 
 $groups = whoami /groups 2>$null
+$services = Get-WmiObject -Class Win32_Service
 $insecureAclRegex = "(BUILTIN\\Users:.+[FMW])|(Everyone:.+[FMW])|(Todos:.+[FMW])|(BUILTIN\\Usuarios:.+[FMW])|(Authenticated Users:.+[FMW])|(Usuarios autentificados:.+[FMW])|(NT AUTHORITY\\INTERACTIVE:.+[FMW])|($($env:USERNAME):.+[FMW])"
 $startUpFolder = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
 $identities = @(
