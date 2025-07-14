@@ -701,7 +701,7 @@ function web_config_password {
 function PowerShell_history_file {
     $go = $false
     foreach ($user in ((ls C:\users).fullname)){
-        if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
+        if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue){
          $go = $true
          break
          }
@@ -710,7 +710,7 @@ function PowerShell_history_file {
         Write-Output "`n[*] :::PowerShell History File:::`n"
         Write-Output "`n[*] :::PowerShell History File:::`n" | Out-File -Append $insecureFile
         foreach ($user in ((ls C:\users).fullname)){
-            if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
+            if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue){
              Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
              Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt`n" | Out-File -Append $insecureFile
              $pshistory_content = cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue 2>$null
