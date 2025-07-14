@@ -16,10 +16,11 @@ $identities = @(
     "BUILTIN\Users",
     "BUILTIN\Usuarios",
     "NT AUTHORITY\Authenticated Users",
+    "NT AUTHORITY\Usuarios autentificados",
     $($env:USERNAME)
 )
 $riskyGroups = @(
-	"Administrators",
+    "Administrators",
     "Administradores",
     "Backup Operators",
     "Print Operators",
@@ -28,7 +29,7 @@ $riskyGroups = @(
     "Service Accounts"
 )
 $adminGroup = @(
-	"Administrators",
+    "Administrators",
     "Administradores"
 )
 $mandatoryLabel = @(
