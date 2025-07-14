@@ -96,6 +96,15 @@ Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\libeay32.dll
 Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\ssleay32.dll
 Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\WSProc.dll
 
+[*] :::Passwords: Web Config file:::
+
+Possible password in file: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
+Possible password in file: C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
+
+[*] :::PowerShell History File:::
+
+Powershell History File in: C:\users\thm-unpriv\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+
 [*] :::Active Network Connections:::
 
   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4
