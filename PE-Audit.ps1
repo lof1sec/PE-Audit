@@ -690,8 +690,8 @@ function web_config_password {
             if (Test-Path $path) {
                 $content = Get-Content -Path $path -ErrorAction SilentlyContinue
                 if ($content -match "<connectionStrings>") {
-                    Write-Host "Possible password in file: $path"
-		    Write-Host "Possible password in file: $path" | Out-File -Append $insecureFile
+                    Write-Output "Possible password in file: $path"
+                    Write-Output "Possible password in file: $path" | Out-File -Append $insecureFile
                 }
             }
         }
@@ -711,8 +711,8 @@ function PowerShell_history_file {
         Write-Output "`n[*] :::PowerShell History File:::`n" | Out-File -Append $insecureFile
         foreach ($user in ((ls C:\users).fullname)){
             if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
-             Write-Host "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
-             "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt`n" | Out-File -Append $insecureFile
+             Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
+             Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt`n" | Out-File -Append $insecureFile
              cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue 2>$null | Out-File -Append $insecureFile
              Write-Output "---------------------------------`n" | Out-File -Append $insecureFile
              }
