@@ -433,7 +433,7 @@ function Schedule_tasks {
 }
 
 function Modifiable_services {
-    $services = Get-WmiObject -Class Win32_Service
+    $services = Get-Service | Select-Object -ExpandProperty Name
     $numServices = $services.Count
     $go = $false
 
