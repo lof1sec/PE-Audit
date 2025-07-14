@@ -464,6 +464,7 @@ function Modifiable_services {
 			    $sddl = $sddlRaw.Trim()
 			    $sdObj = ConvertFrom-SddlString -Sddl $sddl
 			    $sdObj.DiscretionaryAcl | Out-File -Append $insecureFile
+       			    $serviceQuery = sc.exe qc $service 2>$null | Out-File -Append $insecureFile
 			    Write-Output "---------------------------------`n" | Out-File -Append $insecureFile
 		    }
         }
@@ -559,6 +560,7 @@ function Service_executables_ACL_check {
                         Write-Output "Insecure ACL found for: $exePath (Service: $serviceName)" | Out-File -Append $insecureFile
                         Write-Output "Executable Path: $exePath`n" | Out-File -Append $insecureFile
                         $permissions | Out-File -Append $insecureFile
+			$serviceQuery = sc.exe qc $serviceName 2>$null | Out-File -Append $insecureFile
                         Write-Output "---------------------------------`n" | Out-File -Append $insecureFile
                     }
                 }
