@@ -56,6 +56,10 @@ Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WSCtrl.exe
 Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WService.exe
 Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WSLogon.exe
 
+[*] :::Unquoted Service Path (T1574.009):::
+
+Unquoted path found for service: Disk Sorter Enterprise
+
 [*] ::: Installed Applications :::
 
 Total number of Non-Microsoft Applications: 8
@@ -79,7 +83,7 @@ Insecure Service Found: THMService
 
 Insecure ACL for: C:\tasks\schtask.bat
 Insecure ACL for: C:\Users\thm-unpriv\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\RunWallpaperSetup.cmd
-Insecure ACL for: C:\Users\thm-unpriv\PE-Audit_v2.ps1
+Insecure ACL for: C:\Users\thm-unpriv\PE-Audit.ps1
 
 [*] :::Stored Credentials:::
 
@@ -95,19 +99,19 @@ Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\WSProc.dll
 [*] :::Active Network Connections:::
 
   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4
-  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       844
+  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       852
   TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4
-  TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       968
+  TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       976
   TCP    0.0.0.0:5985           0.0.0.0:0              LISTENING       4
-  TCP    0.0.0.0:7680           0.0.0.0:0              LISTENING       2720
-  TCP    0.0.0.0:9125           0.0.0.0:0              LISTENING       2660
+  TCP    0.0.0.0:7680           0.0.0.0:0              LISTENING       7452
+  TCP    0.0.0.0:9125           0.0.0.0:0              LISTENING       2604
   TCP    0.0.0.0:47001          0.0.0.0:0              LISTENING       4
-  TCP    0.0.0.0:49664          0.0.0.0:0              LISTENING       512
-  TCP    0.0.0.0:49665          0.0.0.0:0              LISTENING       340
-  TCP    0.0.0.0:49666          0.0.0.0:0              LISTENING       956
-  TCP    0.0.0.0:49667          0.0.0.0:0              LISTENING       1820
-  TCP    0.0.0.0:49668          0.0.0.0:0              LISTENING       1728
-  TCP    0.0.0.0:49671          0.0.0.0:0              LISTENING       600
-  TCP    0.0.0.0:49675          0.0.0.0:0              LISTENING       624
-  TCP    10.10.224.142:139      0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:49664          0.0.0.0:0              LISTENING       468
+  TCP    0.0.0.0:49665          0.0.0.0:0              LISTENING       60
+  TCP    0.0.0.0:49666          0.0.0.0:0              LISTENING       1644
+  TCP    0.0.0.0:49667          0.0.0.0:0              LISTENING       972
+  TCP    0.0.0.0:49669          0.0.0.0:0              LISTENING       1580
+  TCP    0.0.0.0:49671          0.0.0.0:0              LISTENING       612
+  TCP    0.0.0.0:49675          0.0.0.0:0              LISTENING       636
+  TCP    10.10.235.204:139      0.0.0.0:0              LISTENING       4
 ```
