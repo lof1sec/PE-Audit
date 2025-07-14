@@ -720,7 +720,7 @@ function PowerShell_history_file {
     }
 }
 
-# Control Flow
+# Execution Flow
 
 Token_abusing_group_privilege
 Token_abusing_user_privilege
