@@ -17,118 +17,97 @@ Checks available... at the moment
 - **Web Shell location** (*Mitre T1505.003 - Server Software Component: Web Shell*)
 
 ## How to use:
-- Put `PE-Audit.ps1` and `accesschk.exe` in the same folder (ensure you have write permissions for the folder), and that's it!
-https://download.sysinternals.com/files/AccessChk.zip
+- Put `PE-Audit.ps1`
 
 ```
-PS C:\tools> .\PE-Audit.ps1
+PS C:\Users\thm-unpriv> .\PE-Audit.ps1
 
 ::::: PE-Audit: Windows Privilege Escalation Checker :::::
-by Lof1 ;)
+ by Lof1 ;)
 
+[+] Current User: thm-unpriv
+[+] Computer Name: WPRIVESC1
+[+] Architecture: AMD64
+[+] Windows Version: Microsoft Windows Server 2019 Datacenter 10.0.17763
 
-[+] Current user: user
+[*] :::Permissive Service Executable ACL (T1574.005):::
 
-::::::::::Token Abusing: User Privilege (T1134)::::::::::
+Insecure ACL found for: C:\PROGRA~2\SYSTEM~1\WService.exe (Service: WindowsScheduler)
 
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
+[*] :::Permissive File System ACLs in Executable (T1574.005):::
 
-::::::::::Permissive File System ACLs (T1574.005)::::::::::
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\Message.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\PlaySound.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\PlayWAV.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\Privilege.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\RunNow.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\sc32.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\Scheduler.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\SendKeysHelper.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\ShowXY.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\ShutdownGUI.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\SSAdmin.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\SSCmd.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\SSMail.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\unins000.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WhoAmI.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WScheduler.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WSCtrl.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WService.exe
+Insecure ACL for: C:\Program Files (x86)\SystemScheduler\WSLogon.exe
 
-[+] Checking Directories: C:\Program Files (x86) C:\Program Files
-[+] Scanning C:\Program Files (x86) ...
-[+] Scanning C:\Program Files ...
-Insecure ACL for Service: filepermsvc
-Service Path: "C:\Program Files\File Permissions Service\filepermservice.exe"
+[*] ::: Installed Applications :::
 
-Insecure ACL for Executables:
-C:\Program Files\Autorun Program\program.exe
-C:\Program Files\File Permissions Service\filepermservice.exe
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::Weak Service Permissions (T1574.010)::::::::::
-
-[+] Total number of services: 213
-[+] Checking services...
-Insecure Service Found: daclsvc
-Insecure Service Found: daclsvc
-Insecure Service Found: daclsvc
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::Unquoted Service Path (T1574.009)::::::::::
-
-[+] Total number of services: 213
-[+] Checking services...
-Unquoted path found for service: AWSLiteAgent
-Unquoted path found for service: unquotedsvc
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
-
-:::::::::: Installed Applications ::::::::::
-
-[+] Checking non-Microsoft Applications...
-[+] Total number of Non-Microsoft Applications: 2
+Total number of Non-Microsoft Applications: 8
 
 DisplayName
 -----------
+Disk Sorter Enterprise 13.6.12
+System Scheduler Professional 5.12 (30 Day Evaluation)
 Amazon SSM Agent
+aws-cfn-bootstrap
+PuTTY release 0.76 (64-bit)
+aws-cfn-bootstrap
+AWS PV Drivers
 Amazon SSM Agent
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
 
-::::::::::Scheduled Task (T1053.005)::::::::::
+[*] :::Weak Service Permissions (T1574.010):::
 
+Insecure Service Found: THMService
 
-::::::::::Possible Scheduled Task Scripts (T1053.005)::::::::::
+[*] :::Possible Schedule Task Scripts (T1053.005):::
 
-[+] Scanning C:\DevTools ...
-Insecure ACL for: C:\DevTools\CleanUp.ps1
-[+] Scanning C:\PerfLogs ...
-[+] Scanning C:\PrivEsc ...
-[+] Scanning C:\Temp ...
-[+] Scanning C:\Users ...
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
+Insecure ACL for: C:\tasks\schtask.bat
+Insecure ACL for: C:\Users\thm-unpriv\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\RunWallpaperSetup.cmd
+Insecure ACL for: C:\Users\thm-unpriv\PE-Audit_v2.ps1
 
-::::::::::Weak Registry permission (T1574.011)::::::::::
-
-[+] Scanning "HKLM:\SYSTEM\CurrentControlSet\Services\"
-Weak Registry permission found: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\regsvc
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::Boot or Logon Autostart Execution: Registry Run Keys (T1547.001)::::::::::
-
-[+] Checking: HKLM:\Software\Microsoft\Windows\CurrentVersion\Run
-Found Executable with weak ACL: C:\Program Files\Autorun Program\program.exe
-[+] Scan Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::AlwaysInstallElevated::::::::::
-
-Found: HKLM:\Software\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated is ENABLED (1)
-Found: HKCU:\Software\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated is ENABLED (1)
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::Boot or Logon Autostart Execution: Startup Folder (T1547.001)::::::::::
-
-Global StartUp Folder with weak ACL: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
-
-::::::::::Stored Credentials::::::::::
+[*] :::Stored Credentials:::
 
 Stored credentials for users:
-02nfpgrklkitqatu
-WIN-QBA94KB3IOF\admin
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
+WPRIVESC1\mike.katz
 
-::::::::::Windows Registry Hives Backups::::::::::
+[*] :::Weak ACL for DLL:::
 
-Backup folder: C:\Windows\Repair\
+Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\libeay32.dll
+Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\ssleay32.dll
+Insecure ACL for DLL: C:\Program Files (x86)\SystemScheduler\WSProc.dll
 
+[*] :::Active Network Connections:::
 
-
-Name     Length LastWriteTime
-----     ------ -------------
-SAM       65536 2/27/2025 11:47:27 AM
-SYSTEM 18591744 2/27/2025 11:47:26 AM
-
-
-[+] Check Completed. Results saved in PE_Insecure_Findings.txt
-PS C:\tools> 
+  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       844
+  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       968
+  TCP    0.0.0.0:5985           0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:7680           0.0.0.0:0              LISTENING       2720
+  TCP    0.0.0.0:9125           0.0.0.0:0              LISTENING       2660
+  TCP    0.0.0.0:47001          0.0.0.0:0              LISTENING       4
+  TCP    0.0.0.0:49664          0.0.0.0:0              LISTENING       512
+  TCP    0.0.0.0:49665          0.0.0.0:0              LISTENING       340
+  TCP    0.0.0.0:49666          0.0.0.0:0              LISTENING       956
+  TCP    0.0.0.0:49667          0.0.0.0:0              LISTENING       1820
+  TCP    0.0.0.0:49668          0.0.0.0:0              LISTENING       1728
+  TCP    0.0.0.0:49671          0.0.0.0:0              LISTENING       600
+  TCP    0.0.0.0:49675          0.0.0.0:0              LISTENING       624
+  TCP    10.10.224.142:139      0.0.0.0:0              LISTENING       4
 ```
