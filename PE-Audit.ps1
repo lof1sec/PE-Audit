@@ -713,7 +713,8 @@ function PowerShell_history_file {
             if (Test-Path "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"){
              Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"
              Write-Output "Powershell History File in: $user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt`n" | Out-File -Append $insecureFile
-             cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue 2>$null | Out-File -Append $insecureFile
+             $pshistory_content = cat "$user\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt" -ErrorAction SilentlyContinue 2>$null
+             $pshistory_content | Out-File -Append $insecureFile
              Write-Output "---------------------------------`n" | Out-File -Append $insecureFile
              }
         }
