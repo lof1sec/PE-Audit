@@ -690,7 +690,8 @@ function web_config_password {
             if (Test-Path $path) {
                 $content = Get-Content -Path $path -ErrorAction SilentlyContinue
                 if ($content -match "<connectionStrings>") {
-                    Write-Host "`nPossible password in file: $path"
+                    Write-Host "Possible password in file: $path"
+		    Write-Host "Possible password in file: $path" | Out-File -Append $insecureFile
                 }
             }
         }
