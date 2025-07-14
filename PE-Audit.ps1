@@ -663,6 +663,40 @@ function Token_abusing_group_privilege {
     }
 }
 
+function web_config_password {
+    $drives = Get-PSDrive -PSProvider FileSystem
+    $webConfigPaths = @()
+    $go = $false
+
+    foreach ($drive in $drives) {
+        $foundFiles = Get-ChildItem -Path $drive.Root -Recurse -Filter "web.config" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+        $webConfigPaths += $foundFiles
+    }
+
+    foreach ($path in $webConfigPaths) {
+        if (Test-Path $path) {
+            $content = Get-Content -Path $path -ErrorAction SilentlyContinue
+            if ($content -match "<connectionStrings>") {
+                $go = $true
+                break
+            }
+        }
+    }
+
+    if ($go) {
+        Write-Output "`n[*] :::Passwords: Web Config file:::`n"
+        Write-Output "`n[*] :::Passwords: Web Config file:::`n" | Out-File -Append $insecureFile
+        foreach ($path in $webConfigPaths) {
+            if (Test-Path $path) {
+                $content = Get-Content -Path $path -ErrorAction SilentlyContinue
+                if ($content -match "<connectionStrings>") {
+                    Write-Host "`nPossible password in file: $path"
+                }
+            }
+        }
+    }
+}
+
 
 # Control Flow
 
@@ -682,3 +716,4 @@ Registry_hives_bkp
 Weak_acl_for_dll
 Webshell
 Network_Connections
+web_config_password
