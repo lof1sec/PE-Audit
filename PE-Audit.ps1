@@ -740,3 +740,5 @@ Webshell
 web_config_password
 PowerShell_history_file
 Network_Connections
+
+Write-Output "[+] Scan Completed. Results saved in $insecureFile"
